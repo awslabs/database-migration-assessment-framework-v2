@@ -1,0 +1,6 @@
+ActionCode,EET Efforts - Hours,limit,Description
+5610,0.0001,300,Synonym Referennce 
+5034,0.5,300,Transaction Control
+5584,0.05,300,Converted functions depends on the time zone settings - STANDARD.SYSDATE()
+9997,0.5,300,Unable to resolve objects
+5661,0.5,300,INTERVAL. Data distribution could vary from Oracle. You may need to create partitions or subpartitions manually

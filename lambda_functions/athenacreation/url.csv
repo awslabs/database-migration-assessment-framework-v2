@@ -1,0 +1,20 @@
+Aurora User Guide,https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/CHAP_AuroraOverview.html
+DMS Documentation,https://docs.aws.amazon.com/dms/?id=docs_gateway
+DMS Documentation,https://docs.aws.amazon.com/dms/latest/sbs/dms-sbs-welcome.html
+DMS Overview,https://docs.aws.amazon.com/dms/latest/userguide/Welcome.html
+DMS User Guide,https://docs.aws.amazon.com/dms/latest/userguide/dms-ug.pdf
+Integrate DMS,https://docs.aws.amazon.com/SchemaConversionTool/latest/userguide/CHAP_DMSIntegration.html
+Migrate from Oracle to Amazon Aurora MySQL,https://aws.amazon.com/getting-started/projects/migrate-oracle-to-amazon-aurora/?p=dm
+Migrate from Oracle to Amazon Aurora PostgreSQL,https://d1.awsstatic.com/whitepapers/Migration/oracle-database-amazon-aurora-postgresql-migration-playbook.pdf
+Migrate from SQL Server to Aurora PostgreSQL,https://d1.awsstatic.com/asset-repository/products/AWS%20Database%20Migration%20Service/SQL%20Server%20to%20Aurora%20PostgreSQL%20Migration%20Playbook%201.0%20Preliminary.pdf
+Migration Playbooks and Step by Step Guides,https://aws.amazon.com/blogs/database/the-database-migration-playbook-has-landed/
+Migration Playbooks and Step by Step Guides,https://aws.amazon.com/dms/resources/?nc=sn&loc=5
+Migrations,https://aws.amazon.com/products/databases/migrations/
+ORA2PG,https://ora2pg.darold.net/documentation.html
+Prescriptive Guidance,https://aws.amazon.com/prescriptive-guidance/? 
+RDS Documentation,https://docs.aws.amazon.com/rds/?
+SCT Documentation Overview,https://docs.aws.amazon.com/SchemaConversionTool/latest/userguide/CHAP_Welcome.html            
+SCT User Guide,https://docs.aws.amazon.com/SchemaConversionTool/latest/userguide/Schema-Conversion-Tool.pdf
+Whitepapers,https://d1.awsstatic.com/whitepapers/RDS/Migrating%20your%20databases%20to%20Amazon%20Aurora.pdf?did=wp_card&trk=wp_card
+Effort Estimation Template,https://collaborate-corp.amazon.com/nuxeo/ui/#!/doc/530da774-c583-42e6-b3e2-bee0ef12d9e1
+AWS Pricing Calculator,https://calculator.aws/#/addService

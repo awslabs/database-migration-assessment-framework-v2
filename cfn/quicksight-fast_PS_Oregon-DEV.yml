@@ -1,0 +1,419 @@
+Description: Create Athena S3 Output
+AWSTemplateFormatVersion: 2010-09-09
+Metadata:
+  'AWS::CloudFormation::Interface':
+    ParameterGroups:
+      - Label:
+          default: Environment Settings
+        Parameters:
+          - Name
+          - EnvironmentName
+          - ProjectTagKey
+          - ProjectTagValue
+      - Label:
+          default: Athena Settings
+        Parameters:
+          - AthenaWorkGroup
+          - AwsDataCatalogName
+          - AthenaDBName
+      - Label:
+          default: Quicksight Settings
+        Parameters:
+          - QSDataSetImportModeVWDatamart
+          - QSDataSetImportModeVWUrldocumentation
+          - QSUserName
+          - QSUserRegion
+          - QSAnalysisName
+          - QSTemplateName
+          - QSSourceTemplateArn
+          - QSDashboardName
+Parameters:
+  Name:
+    Type: String
+    Default: dmaf
+    Description: 'The name, used for tags'
+  EnvironmentName:
+    Type: String
+    Default: dev
+    Description: >-
+      The environment name, used for locating outputs from the prerequisite
+      stacks
+  ProjectTagKey:
+    Description: The EC2 tag key that identifies this as a target for deployments.
+    Type: String
+    Default: TOOL
+    AllowedPattern: '[\x20-\x7E]*'
+    ConstraintDescription: Can contain only ASCII characters.
+  ProjectTagValue:
+    Description: The EC2 tag value that identifies this as a target for deployments.
+    Type: String
+    Default: DMAF
+    AllowedPattern: '[\x20-\x7E]*'
+    ConstraintDescription: Can contain only ASCII characters.
+  AwsDataCatalogName:
+    Description: >-
+      The AwsDataCatalogName value that identifies this as a target for
+      deployments.
+    Type: String
+    Default: AwsDataCatalog
+  AthenaWorkGroup:
+    Type: String
+    Default: primary
+    Description: The athena workgroup name, used for locating outputs from the
+                 prerequisite stacks
+  AthenaDBName:
+    Description: The AthenaDBName value that identifies this as a target for deployments.
+    Type: String
+    Default: dmafdb2   
+  QSDataSetImportModeVWDatamart:
+    Type: String
+    Default: SPICE
+    Description: Dataset import mode.
+    AllowedValues:
+      - SPICE
+      - DIRECT_QUERY
+  QSDataSetImportModeVWUrldocumentation:
+    Type: String
+    Default: SPICE
+    Description: Dataset import mode.
+    AllowedValues:
+      - SPICE
+      - DIRECT_QUERY
+  QSAnalysisName:
+    Type: String
+    Default: dmaf_v2_1
+    Description: The quicksight analysis name, used for locating outputs from the
+                 prerequisite stacks
+  QSTemplateName:
+    Type: String
+    Default: dmaf_v2_1
+    Description: The quicksight template name, used for locating outputs from the
+                 prerequisite stacks
+  QSDashboardName:
+    Type: String
+    Default: dmaf_v2_1
+    Description: The dashboard name, used for locating outputs from the
+                 prerequisite stacks
+  QSSourceTemplateArn:
+    Type: String
+    Default: arn:aws:quicksight:us-west-2:254711704212:template/dmaf-OREDEV-template-dmaf_v2_1-254711704212
+    Description: The quicksight source template arn, used for locating outputs from the
+                 prerequisite stacks
+  QSUserName:
+    Type: String
+    Default: quicksight-user-here
+    Description: >-
+      The quicksight username, used for locating outputs from the prerequisite
+      stacks
+  QSUserRegion:
+    Type: String
+    Default: us-east-1
+    Description: >-
+      The quicksight user creation region, used for locating outputs from the
+      prerequisite stacks (not Region for Deployment)
+Resources:
+  QSDataSource:
+    Type: AWS::QuickSight::DataSource
+    Properties:
+      AwsAccountId: !Ref AWS::AccountId
+      DataSourceId: !Sub '${Name}-${EnvironmentName}-qsdatasource-${AWS::AccountId}'
+      DataSourceParameters:
+        AthenaParameters:
+          WorkGroup: !Ref AthenaWorkGroup
+      Name: !Sub '${Name}-${EnvironmentName}-qsdatasource-${AWS::AccountId}'
+      Type:  ATHENA
+      Tags:
+        - Key: Name
+          Value: !Ref Name
+        - Key: Environment
+          Value: !Ref EnvironmentName                          
+        - Key: !Ref ProjectTagKey
+          Value: !Ref ProjectTagValue 
+      Permissions:
+        - Actions:
+            - quicksight:UpdateDataSourcePermissions
+            - quicksight:DescribeDataSource
+            - quicksight:DescribeDataSourcePermissions
+            - quicksight:PassDataSource
+            - quicksight:UpdateDataSource
+            - quicksight:DeleteDataSource
+          Principal: !Sub 
+            - 'arn:aws:quicksight:${QSUserRegion}:${Account}:user/default/${QSUserName}'
+            - Account: !Ref 'AWS::AccountId'
+  QSDataSetVWDatamart:
+    Type: 'AWS::QuickSight::DataSet'
+    DependsOn: QSDataSource
+    Properties:
+      AwsAccountId: !Ref 'AWS::AccountId'
+      DataSetId: !Sub '${Name}-${EnvironmentName}-qsdataset-vw-datamart-${AWS::AccountId}'
+      ImportMode: !Ref QSDataSetImportModeVWDatamart
+      Name: !Sub '${Name}-${EnvironmentName}-qsdataset-vw-datamart-${AWS::AccountId}'
+      PhysicalTableMap:
+        vw-datamart:
+          RelationalTable:
+            DataSourceArn: !GetAtt QSDataSource.Arn
+            Catalog: !Ref AwsDataCatalogName
+            Schema: !Ref AthenaDBName
+            Name: vw_datamart
+            InputColumns:
+              - Name: source
+                Type: STRING
+              - Name: target
+                Type: STRING
+              - Name: customer
+                Type: STRING
+              - Name: batch
+                Type: STRING
+              - Name: hostname
+                Type: STRING
+              - Name: databasename
+                Type: STRING
+              - Name: schemaname
+                Type: STRING
+              - Name: category
+                Type: STRING
+              - Name: actionitem
+                Type: STRING
+              - Name: occurrence
+                Type: INTEGER
+              - Name: wqf_10_90_per
+                Type: DECIMAL
+              - Name: wqf_30_70_per
+                Type: DECIMAL
+              - Name: wqf_50_50_per
+                Type: DECIMAL
+              - Name: wqf_10_90
+                Type: DECIMAL
+              - Name: wqf_30_70
+                Type: DECIMAL
+              - Name: wqf_50_50
+                Type: DECIMAL
+              - Name: subject
+                Type: STRING
+              - Name: group
+                Type: STRING
+              - Name: description
+                Type: STRING
+              - Name: document
+                Type: STRING
+              - Name: recommendedaction
+                Type: STRING
+              - Name: filtered
+                Type: STRING
+              - Name: complexity
+                Type: STRING
+              - Name: noobj
+                Type: INTEGER
+              - Name: autoconverted
+                Type: INTEGER
+              - Name: banner
+                Type: STRING
+              - Name: pdf_url
+                Type: STRING
+              - Name: schema_complexity
+                Type: STRING
+              - Name: code_obj_conv_pcs
+                Type: STRING
+              - Name: storage_obj_conv_pcs
+                Type: STRING
+              - Name: syntax_obj_conv_pcs
+                Type: STRING
+              - Name: maxtime
+                Type: DECIMAL
+              - Name: eeteffort2
+                Type: DECIMAL
+              - Name: recommended_instance
+                Type: STRING
+      Permissions:
+        - Actions:
+            - 'quicksight:UpdateDataSetPermissions'
+            - 'quicksight:DescribeDataSet'
+            - 'quicksight:DescribeDataSetPermissions'
+            - 'quicksight:PassDataSet'
+            - 'quicksight:DescribeIngestion'
+            - 'quicksight:ListIngestions'
+            - 'quicksight:UpdateDataSet'
+            - 'quicksight:DeleteDataSet'
+            - 'quicksight:CreateIngestion'
+            - 'quicksight:CancelIngestion'
+          Principal: !Sub 
+            - >-
+              arn:aws:quicksight:${QSUserRegion}:${Account}:user/default/${QSUserName}
+            - Account: !Ref 'AWS::AccountId'
+      Tags:
+        - Key: Name
+          Value: !Ref Name
+        - Key: Environment
+          Value: !Ref EnvironmentName
+        - Key: !Ref ProjectTagKey
+          Value: !Ref ProjectTagValue
+  QSDataSetVWUrldocumentation:
+    Type: 'AWS::QuickSight::DataSet'
+    DependsOn: QSDataSource
+    Properties:
+      AwsAccountId: !Ref 'AWS::AccountId'
+      DataSetId: !Sub >-
+        ${Name}-${EnvironmentName}-qsdataset-vw-urldocumentation-${AWS::AccountId}
+      ImportMode: !Ref QSDataSetImportModeVWUrldocumentation
+      Name: !Sub >-
+        ${Name}-${EnvironmentName}-qsdataset-vw-urldocumentation-${AWS::AccountId}
+      PhysicalTableMap:
+        vw-urldocumentation:
+          RelationalTable:
+            DataSourceArn: !GetAtt QSDataSource.Arn
+            Catalog: !Ref AwsDataCatalogName
+            Schema: !Ref AthenaDBName
+            Name: vw_urldocumentation
+            InputColumns:
+              - Name: name
+                Type: STRING
+              - Name: link
+                Type: STRING
+      Permissions:
+        - Actions:
+            - 'quicksight:UpdateDataSetPermissions'
+            - 'quicksight:DescribeDataSet'
+            - 'quicksight:DescribeDataSetPermissions'
+            - 'quicksight:PassDataSet'
+            - 'quicksight:DescribeIngestion'
+            - 'quicksight:ListIngestions'
+            - 'quicksight:UpdateDataSet'
+            - 'quicksight:DeleteDataSet'
+            - 'quicksight:CreateIngestion'
+            - 'quicksight:CancelIngestion'
+          Principal: !Sub 
+            - >-
+              arn:aws:quicksight:${QSUserRegion}:${Account}:user/default/${QSUserName}
+            - Account: !Ref 'AWS::AccountId'
+      Tags:
+        - Key: Name
+          Value: !Ref Name
+        - Key: Environment
+          Value: !Ref EnvironmentName
+        - Key: !Ref ProjectTagKey
+          Value: !Ref ProjectTagValue
+  QSTemplate:
+    Type: AWS::QuickSight::Template
+    Properties:
+      TemplateId: !Sub '${Name}-${EnvironmentName}-template-${QSTemplateName}-${AWS::AccountId}'
+      Name: !Sub '${Name}-${EnvironmentName}-template-${QSTemplateName}-${AWS::AccountId}'
+      AwsAccountId: !Ref AWS::AccountId
+      SourceEntity:
+        SourceTemplate:
+          Arn: !Ref QSSourceTemplateArn
+      Permissions:
+        - Actions:
+            - quicksight:DescribeTemplate
+          Principal: !Sub 
+            - 'arn:aws:quicksight:${QSUserRegion}:${Account}:user/default/${QSUserName}'
+            - Account: !Ref 'AWS::AccountId'
+      VersionDescription: Initial version - Copied over from AWS account.
+      Tags:
+        - Key: Name
+          Value: !Ref Name
+        - Key: Environment
+          Value: !Ref EnvironmentName                          
+        - Key: !Ref ProjectTagKey
+          Value: !Ref ProjectTagValue 
+  QSAnalysis:
+    Type: AWS::QuickSight::Analysis
+    DependsOn:
+    - QSDataSetVWDatamart
+    - QSDataSetVWUrldocumentation
+    Properties:
+      AnalysisId: !Sub '${Name}-${EnvironmentName}-analysis-${QSAnalysisName}-${AWS::AccountId}'
+      Name: !Sub '${Name}-${EnvironmentName}-analysis-${QSAnalysisName}-${AWS::AccountId}'
+      AwsAccountId: !Ref AWS::AccountId
+      SourceEntity:
+        SourceTemplate:
+          Arn: !GetAtt QSTemplate.Arn
+          DataSetReferences:
+            - DataSetPlaceholder: vw_datamart
+              DataSetArn: !GetAtt QSDataSetVWDatamart.Arn
+            - DataSetPlaceholder: vw_urldocumentation
+              DataSetArn: !GetAtt QSDataSetVWUrldocumentation.Arn
+      Permissions:
+        - Actions:
+            - quicksight:RestoreAnalysis
+            - quicksight:UpdateAnalysisPermissions
+            - quicksight:DeleteAnalysis
+            - quicksight:DescribeAnalysisPermissions
+            - quicksight:QueryAnalysis
+            - quicksight:DescribeAnalysis
+            - quicksight:UpdateAnalysis
+          Principal: !Sub 
+          - 'arn:aws:quicksight:${QSUserRegion}:${Account}:user/default/${QSUserName}'
+          - Account: !Ref 'AWS::AccountId'              
+      Tags:
+        - Key: Name
+          Value: !Ref Name
+        - Key: Environment
+          Value: !Ref EnvironmentName                          
+        - Key: !Ref ProjectTagKey
+          Value: !Ref ProjectTagValue 
+  QSDashboard:
+    Type: AWS::QuickSight::Dashboard
+    DependsOn:
+    - QSDataSetVWDatamart
+    - QSDataSetVWUrldocumentation
+    Properties:
+      DashboardId: !Sub '${Name}-${EnvironmentName}-dashboard-${QSDashboardName}-${AWS::AccountId}'
+      Name: !Sub '${Name}-${EnvironmentName}-dashboard-${QSDashboardName}-${AWS::AccountId}'
+      AwsAccountId: !Ref AWS::AccountId
+      SourceEntity:
+        SourceTemplate:
+          Arn: !GetAtt QSTemplate.Arn
+          DataSetReferences:
+            - DataSetPlaceholder: vw_datamart
+              DataSetArn: !GetAtt QSDataSetVWDatamart.Arn
+            - DataSetPlaceholder: vw_urldocumentation
+              DataSetArn: !GetAtt QSDataSetVWUrldocumentation.Arn
+      Permissions:
+        - Actions:
+            - quicksight:DescribeDashboard
+            - quicksight:ListDashboardVersions
+            - quicksight:UpdateDashboardPermissions
+            - quicksight:QueryDashboard
+            - quicksight:UpdateDashboard
+            - quicksight:DeleteDashboard
+            - quicksight:DescribeDashboardPermissions
+            - quicksight:UpdateDashboardPublishedVersion
+          Principal: !Sub 
+          - 'arn:aws:quicksight:${QSUserRegion}:${Account}:user/default/${QSUserName}'
+          - Account: !Ref 'AWS::AccountId'    
+      Tags:
+        - Key: Name
+          Value: !Ref Name
+        - Key: Environment
+          Value: !Ref EnvironmentName                          
+        - Key: !Ref ProjectTagKey
+          Value: !Ref ProjectTagValue 
+Outputs:
+  QSDataSource:
+    Value: !GetAtt "QSDataSource.Arn"
+    Export:
+      Name: !Sub "${EnvironmentName}:${Name}:QSDataSource"
+  QSDataSetVWDatamart:
+    Value: !GetAtt 
+      - QSDataSetVWDatamart
+      - Arn
+    Export:
+      Name: !Sub '${EnvironmentName}:${Name}:QSDataSetVWDatamart:vw-datamart'
+  QSDataSetVWUrldocumentation:
+    Value: !GetAtt 
+      - QSDataSetVWUrldocumentation
+      - Arn
+    Export:
+      Name: !Sub '${EnvironmentName}:${Name}:QSDataSetVWUrldocumentation:vw-datamart'
+  QSTemplate:
+    Value: !GetAtt "QSTemplate.Arn"
+    Export:
+      Name: !Sub "${EnvironmentName}:${Name}:QSTemplate"
+  QSAnalysis:
+    Value: !GetAtt "QSAnalysis.Arn"
+    Export:
+      Name: !Sub "${EnvironmentName}:${Name}:QSAnalysis"
+  QSDashboard:
+    Value: !GetAtt "QSDashboard.Arn"
+    Export:
+      Name: !Sub "${EnvironmentName}:${Name}:QSDashboard"   

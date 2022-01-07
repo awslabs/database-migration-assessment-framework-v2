@@ -1,0 +1,1072 @@
+source,target,actioncode,hours,Feature,Exceptionsyntax
+oracle,postgresql,5024,2,INSERT,INSERT with partition_extension_clause
+oracle,postgresql,5025,4,This syntactic element conversion is not supported yet,This syntactic element conversion is not supported yet
+oracle,postgresql,5027,0.01,PACKAGES,No Package Body on Spec
+oracle,postgresql,5028,4,DATATYPES,Check for Subject it is generic from all Collection\subtypes\varchar30000\nativeoraclepackages
+oracle,postgresql,5029,2,DATATYPES,check for Subject it is generic from all Collection\subtypes\bfile\nativeoraclepackages
+oracle,postgresql,5030,2,DATATYPES,Collection Types
+oracle,postgresql,5031,2,SELECT,Cursor expression
+oracle,postgresql,5032,2,TYPES,Incomplete user-defined datatype
+oracle,postgresql,5034,0.5,TRANSACTION CONTROL IS ONLY POSSIBLE FROM THE TOP LEVEL,
+oracle,postgresql,5035,0.5,TRANSACTIONAL,WITHIN EXCEPTIONS
+oracle,postgresql,5036,0.5,TRANSACTIONAL,CALL STACK
+oracle,postgresql,5062,1,TYPES,CONSTRUCTOR
+oracle,postgresql,5063,1,DEFAULT,PACKAGE VARIABLES
+oracle,postgresql,5064,1,UPDATE,ERROR LOG
+oracle,postgresql,5065,0.5,UPDATE,QUERY
+oracle,postgresql,5067,0.5,DELETE,ERROR LOG
+oracle,postgresql,5068,2,DELETE,QUERY
+oracle,postgresql,5070,1,INSERT,ERROR LOG
+oracle,postgresql,5071,1,INSERT,QUERY
+oracle,postgresql,5075,0.1,VIEW,WITH READ ONLY
+oracle,postgresql,5077,1,VIEW,PIVOT clause
+oracle,postgresql,5081,1,DYNAMIC SQL PARAMETER DEPENDENCY,
+oracle,postgresql,5087,1,DYNAMIC SQL,RETURNING BULK COLLECT INTO
+oracle,postgresql,5088,1,DYNAMIC SQL,BULK COLLECT
+oracle,postgresql,5090,1.5,INSERT,SUBPARTITION
+oracle,postgresql,5093,2,MATERIALIZED VIEW,CREATE
+oracle,postgresql,5094,1,MATERIALIZED VIEW,CREATE
+oracle,postgresql,5095,8,MATERIALIZED VIEW,USING MATERIALIZED VIEW
+oracle,postgresql,5098,8,DELETE,PARTITION
+oracle,postgresql,5099,1,CREATE,
+oracle,postgresql,5102,2,MERGE,MERGE
+oracle,postgresql,5103,0.01,Optimizer Hints,HINT
+oracle,postgresql,5117,2,Implicit cursor,BULK_ROWCOUNT-BULK_EXCEPTIONS
+oracle,postgresql,5118,2,UDT collection-type arguments,TYPE .. IS TABLE OF� INDEX BY �
+oracle,postgresql,5120,4,UDT collection-type arguments,:= collection_type(...)
+oracle,postgresql,5121,8,UDT collection-type arguments,FORALL
+oracle,postgresql,5126,8,SELECT,MODEL
+oracle,postgresql,5139,2,SELECT ,FOR UPDATE SKIP LOCKED 
+oracle,postgresql,5140,2,SELECT ,BULK COLLECT INTO 
+oracle,postgresql,5144,2,SELECT ,FOR UPDATE WAIT
+oracle,postgresql,5196,4,CREATE TABLE,CREATING OBJECT TABLES
+oracle,postgresql,5198,8,CREATE TABLE, CREATING GLOBAL TEMPORARY TABLE 
+oracle,postgresql,5199,8,CREATE TABLE,CREATING CLUSTERED TABLE
+oracle,postgresql,5200,4,CREATE TABLE,CREATING EXTERNAL TABLES
+oracle,postgresql,5201,2,CREATE TABLE,CREATING A PARTITIONED TABLE
+oracle,postgresql,5206,2,CREATE INDEX, Creating an BITMAP  Index
+oracle,postgresql,5208,8,CREATE INDEX,Creating a Domain  Index
+oracle,postgresql,5212,8,CREATE TABLE,BFILE Data Type
+oracle,postgresql,5213,0.5,CREATE TABLE, TIMESTAMP(n>6)  Data Type
+oracle,postgresql,5225,0.1,CURSOR,TYPE .. IS REF CURSOR
+oracle,postgresql,5226,1,CURSOR,TYPE .. IS REF CURSOR
+oracle,postgresql,5238,1,TRIGGERS,REFERENCING NEW AS .. OLD AS ..
+oracle,postgresql,5240,2,TRIGGERS,ON NESTED TABLE
+oracle,postgresql,5241,2,TRIGGERS,FOLLOWS | PRECEDES
+oracle,postgresql,5242,4,TRIGGERS,COMPOUND TRIGGER
+oracle,postgresql,5243,0.5,TRIGGERS,TRIGGER owned by another schema
+oracle,postgresql,5245,2,VIEW,CAST (MULTISET(
+oracle,postgresql,5271,4,BUILT-IN SQL FUNCTIONS,GREATEST
+oracle,postgresql,5272,4,BUILT-IN SQL FUNCTIONS,LEAST
+oracle,postgresql,5293,0.1,Parser Error,Parser Error
+oracle,postgresql,5298,0.2,TRUNCATE TABLE,DROP STORAGE
+oracle,postgresql,5299,0.01,TRUNCATE TABLE,REUSE STORAGE
+oracle,postgresql,5300,0.2,TRUNCATE TABLE,PRESERVE MATERIALIZED VIEW LOG
+oracle,postgresql,5301,0.2,TRUNCATE TABLE,PURGE MATERIALIZED VIEW LOG
+oracle,postgresql,5306,8,TRIGGERS,status=invalid
+oracle,postgresql,5311,160,TRIGGERS,base-object-type=SCHEMA
+oracle,postgresql,5313,160,TRIGGERS,action-type=CALL or PL/SQL
+oracle,postgresql,5317,40,TRIGGERS,referencing-names=PARENT
+oracle,postgresql,5320,2,VIEW,STATUS=INVALID
+oracle,postgresql,5321,8,VIEW,OID_TEXT IS NOT NULL
+oracle,postgresql,5322,8,VIEW,VIEW_TYPE_OWNER IS NOT NULL
+oracle,postgresql,5326,0.2,CREATE CONSTRAINT ,status=DISABLED
+oracle,postgresql,5330,40,PACKAGES,Package global cursor
+oracle,postgresql,5332,8,CREATE,
+oracle,postgresql,5333,0.01,Synonym,private synonym
+oracle,postgresql,5334,2,DYNAMIC SQL,EXECUTE IMMEDIATE
+oracle,postgresql,5335,8,Statements,GOTO
+oracle,postgresql,5339,8,Universal,Universal Action Item
+oracle,postgresql,5340,2, BUILT-IN SQL FUNCTIONS,FUNCTION
+oracle,postgresql,5348,8,CREATE TABLE,NESTED TABLE
+oracle,postgresql,5350,0.5,Transaction control,COMMIT\ROLLBACK
+oracle,postgresql,5351,1,Unknown - dual,Unknown Object
+oracle,postgresql,5352,0.01,SYNONYMS,CREATE
+oracle,postgresql,5353,40,SYNONYMS,USING SYNONYMS
+oracle,postgresql,5415,160,TRIGGERS,base-object-type=DATABASE
+oracle,postgresql,5500,8,System Package,UTL_MAIL module
+oracle,postgresql,5501,1.5,System Package - DBMS_Schedling,DBMS_JOB module
+oracle,postgresql,5502,2,System Package - dbms_datadump,DBMS_DATAPUMP
+oracle,postgresql,5503,8,System Package -APEX,APEX_UTIL package
+oracle,postgresql,5550,1,CREATE TABLE,ROWID Data Type
+oracle,postgresql,5551,1,CREATE TABLE,UROWID Data Type
+oracle,postgresql,5552,0.5,CREATE TABLE, TIMESTAMP(n>6)  WITH TIME ZONE Data Type
+oracle,postgresql,5553,0.5,CREATE TABLE, TIMESTAMP(n>6) WITH LOCAL TIME ZONE  Data Type
+oracle,postgresql,5554,2,CREATE TABLE,TABLE WITH VIRTUAL COLUMNS 
+oracle,postgresql,5555,40,CREATE INDEX,Creating a Function-Based Index
+oracle,postgresql,5556,4,TRIGGERS,UPDATING(column_name)
+oracle,postgresql,5557,8,SELECT,ROLLUP
+oracle,postgresql,5558,8,UPDATE,PARTITION
+oracle,postgresql,5559,2,EXPLICIT CURSORS,RETURN
+oracle,postgresql,5560,1,EXCEPTION,PROGRAM_ERROR
+oracle,postgresql,5561,1,EXCEPTION,ACCESS_INTO_NULL 
+oracle,postgresql,5569,40,PACKAGES,Package user type declaration
+oracle,postgresql,5571,0.5,PRAGMA,Pragma
+oracle,postgresql,5572,8,CREATE TYPE,OBJECT TYPE
+oracle,postgresql,5574,8,SEQUENCE,STATUS=INVALID
+oracle,postgresql,5575,8,UDT,DEFAULT
+oracle,postgresql,5576,2.5,Unknown,Unparsed SQL
+oracle,postgresql,5577,40,UDT,STATUS=INVALID
+oracle,postgresql,5578,2,SELECT,Unsupported statement
+oracle,postgresql,5579,8,BUILT-IN SQL FUNCTIONS,TO_CHAR-TO_DATE-TO_NUMBER
+oracle,postgresql,5580,2,EXCEPTION,EMPTY_BLOCK
+oracle,postgresql,5581,0.1,CREATE TABLE,index-organized table
+oracle,postgresql,5582,2,CREATE,Encrypted Objects
+oracle,postgresql,5583,40,VIEW,constraint
+oracle,postgresql,5584,0.5, BUILT-IN SQL FUNCTIONS,DateTime function
+oracle,postgresql,5585,0.5,SELECT ,OUTER JOIN
+oracle,postgresql,5586,1,SELECT ,Hierarchical Queries
+oracle,postgresql,5587,8,UDT collection-type arguments,EXTEND(n[-i])
+oracle,postgresql,5590,0.1,Build_in_services,UTL_SMTP DBMS_JOB
+oracle,postgresql,5591,0.01,Universal Oracle Views,Supported by Extensions
+oracle,postgresql,5592,0.25,Synonym,public synonym
+oracle,postgresql,5593,0.25,Synonym,public synonym
+oracle,postgresql,5594,0.5,Datetime Expressions,LOCAL time zone
+oracle,postgresql,5595,0.01,ROWID,ROWID
+oracle,postgresql,5597,0.01,ROWID,ROWID
+oracle,postgresql,5598,1,ROWID,ROWID
+oracle,postgresql,5599,0.5,Error Information,SQLERRM outside a handler
+oracle,postgresql,5600,0.1,Error Information,SQLERRM outside a handler
+oracle,postgresql,5601,0.5,Error Information,SQLCODE outside a handler
+oracle,postgresql,5602,4,Error Information,SQLCODE assigned to other variable
+oracle,postgresql,5603,4,Conditional Compilation ,Conditional Compilation 
+oracle,postgresql,5604,0.5,Global Cursors,FETCH without OPEN
+oracle,postgresql,5605,4,DBLINK,@dblink_name
+oracle,postgresql,5606,8,Nested tables,Multi-level nested tables of record
+oracle,postgresql,5607,8,FUNCTION-PROCEDURE,Stored Java routine
+oracle,postgresql,5608,4,UPDATE,UPDATE
+oracle,postgresql,5609,40,CREATE TABLE OR PROCEDURE,Unsuported Data Type
+oracle,postgresql,5610,0.0001,Synonym,using synonym
+oracle,postgresql,5611,1,Transaction control,SAVEPOINT-ROLLBACK TO SAVEPOINT
+oracle,postgresql,5612,2,Global Cursors,FETCH without OPEN
+oracle,postgresql,5613,4,ARRAYS,Multidimensional arrays
+oracle,postgresql,5614,4,Views,Updatable views
+oracle,postgresql,5615,2,Records,Multi-level records
+oracle,postgresql,5616,8,TABLE FUNCTION,TABLE
+oracle,postgresql,5617,0.05,BUILT-IN SQL FUNCTIONS,Regular expressions (REG_EXP)
+oracle,postgresql,5618,4,MERGE,ERROR LOG
+oracle,postgresql,5619,4,SYS objects,SYS objects
+oracle,postgresql,5620,4,CREATE TABLE, CREATING GLOBAL TEMPORARY TABLE 
+oracle,postgresql,5621,2,MERGE,INSERT ON CONFLICT
+oracle,postgresql,5622,2,PACKAGES,TRANSACTION ID
+oracle,postgresql,5623,4,PACKAGES,UUE encode/decode
+oracle,postgresql,5624,1,DYNAMIC SQL,BIND VARIABLES
+oracle,postgresql,5625,1,DYNAMIC SQL,BIND VARIABLES-ANONYMOUS BLOCK
+oracle,postgresql,5626,4,PACKAGES,DBMS_SESSION
+oracle,postgresql,5627,2,DYNAMIC SQL,DYNAMIC SQL
+oracle,postgresql,5628,2,DYNAMIC SQL,EXECUTE IMMEDIATE OPEN cursor FOR
+oracle,postgresql,5629,5,DYNAMIC SQL,DBMS_SQL
+oracle,postgresql,5630,5,DYNAMIC SQL,DBMS_SQL
+oracle,postgresql,5631,8,SPATIAL,SPATIAL
+oracle,postgresql,5632,8,SPATIAL,SPATIAL
+oracle,postgresql,5633,2,DYNAMIC SQL,DBMS_SQL
+oracle,postgresql,5634,2,DYNAMIC SQL,UDF with OUT/IN OUT parameters
+oracle,postgresql,5635,0.5,CREATE TABLE,CREATING A PARTITIONED TABLE
+oracle,postgresql,5636,4,ARRAY,VARRAY OF VARRAY
+oracle,postgresql,5637,16,SELECT,SELECT BUlK COLLECT INTO
+oracle,postgresql,5638,2,Global Nested Table,Using with IN/IN OUT parameters
+oracle,postgresql,5639,0.5,DBLINK,access credentials
+oracle,postgresql,5640,0.25,DBLINK,access credentials
+oracle,postgresql,5641,2,DBLINK,remote UDF usage
+oracle,postgresql,5642,,BULK,BULK COLLECT INTO
+oracle,postgresql,5643,24,BULK,SELECT BUlK COLLECT INTO
+oracle,postgresql,5644,4,ASSOCIATIVE ARRAY/GLOBAL NESTED TABLE,array assigning
+oracle,postgresql,5645,24,BULK,SELECT BUlK COLLECT INTO
+oracle,postgresql,5646,8,SUBTYPE,SUBTYPE ...%ROWTYPE NOT NULL
+oracle,postgresql,5648,8,Multilevel collections,Use of heterogeneous collections
+oracle,postgresql,5649,48,Multilevel collections,Multiset operators
+oracle,postgresql,5650,2,MULTISET,Multiset operators
+oracle,postgresql,5651,8,TABLE(),PIPELINED FUNCTIONS
+oracle,postgresql,5652,2,CREATE PARTITIONED TABLE,PARTITIONED TABLE
+oracle,postgresql,5653,3,CREATE PARTITIONED TABLE,PARTITIONED TABLE-Foreign key
+oracle,postgresql,5654,2,CREATE PARTITIONED TABLE,PARTITIONED TABLE-Foreign key
+oracle,postgresql,5655,2,CREATE PARTITIONED TABLE,PARTITIONED TABLE-ENABLE ROW MOVEMENT
+oracle,postgresql,5656,0.5,CREATE PARTITIONED TABLE - TIMESTAMP Partition ,PARTITIONED TABLE
+oracle,postgresql,5657,2,DBLINK,view on remote table
+oracle,postgresql,5658,2,CREATE PARTITIONED TABLE,PARTITIONED TABLE
+oracle,postgresql,5659,0.1,CREATE TABLE - LOB COLUMNS,LOB COLUMNS
+oracle,postgresql,5664,0.5,PRAGMA AUTONOMOUS_TRANSACTION,
+oracle,postgresql,5850,2,Session control,SET ROLE
+oracle,postgresql,5950,2,SQL*Plus,SQL*Plus Command
+oracle,postgresql,5951,2,SQL*Plus,SQL*Plus Variable
+oracle,postgresql,5952,2,SQL*Plus,SQL*Plus Substitution Variable
+oracle,postgresql,5953,2,SQL*Plus,SQL*Plus System Setting
+oracle,postgresql,5954,2,SQL*Plus,SQL*Plus Output Formatting
+oracle,postgresql,5955,2,SQL*Plus,SPOOL APPEND
+oracle,postgresql,5956,2,SQL*Plus,SQL*Plus Command
+oracle,postgresql,5957,2,SQL*Plus,SQL*Plus Command-SQL Statement-Substitution Variable
+oracle,postgresql,5958,2,SQL*Plus-DDL,TABLESPACE
+oracle,postgresql,5959,2,SQL*Plus-DDL,ALTER USER
+oracle,postgresql,5960,2,SQL*Plus-DDL,GRANT
+oracle,postgresql,5961,0.5,SQL*Plus-DDL,GRANT ROLE
+oracle,postgresql,5962,2,SQL*Plus-DDL,ALTER TABLE/CREATE TABLE
+oracle,postgresql,5963,1,SQL*Plus,CONNECT
+oracle,postgresql,5965,2,SQL*Plus-DDL,CREATE/ALTER/DROP
+oracle,postgresql,5966,1,SQL*Plus-DDL,CREATE/ALTER/DROP
+oracle,postgresql,5967,2,SQL*Plus-DDL,CREATE SYNONYM
+oracle,postgresql,5968,0.5,SQL*Plus,CONNECT
+oracle,postgresql,9999,8,,
+oracle,postgresql,9998,8,,
+oracle,postgresql,9997,8,,
+oracle,postgresql,9996,3,INTERFACE - DB LINKS HEAVY QUERY,INTERFACE - DB LINKS HEAVY QUERY
+oracle,postgresql,9995,8,,
+oracle,postgresql,9994,2,FEATURES LIST - JOBS SCHEDULING - MLOG,
+oracle,postgresql,9993,3,HIERARCHY QUERY /DBLINKS / PIVOT / UNPIVOT / DYNAMIC QUERY / UTL_FILE ,HIERARCHY QUERY /DBLINKS / PIVOT / UNPIVOT / DYNAMIC QUERY / UTL_FILE 
+oracle,postgresql,9991,0.01,,
+oracle,postgresql,9990,0.01,,
+oracle,postgresql,9992,8,,
+oracle,postgresql,100004,1,,
+oracle,postgresql,5661,0.5,CREATE PARTITIONED TABLE - Interval,Proactive Create Partitions
+oracle,postgresql,5100,2,GETXML,
+oracle,postgresql,5127,2,CROSS JOIN - PERFORMANCE,CROSS JOIN - PERFORMANCE
+oracle,postgresql,5662,0.1,Error Code Data type Mismatch,change Datatype 
+oracle,postgresql,5977,4,SQL%BULK_EXCEPTIONS,
+oracle,postgresql,5660,2,Resultset could vary from Oracle,
+oracle,postgresql,5096,2,,
+oracle,postgresql,5663,1,PL/SQL PRAGMA IS UNSUPPORTED,
+oracle,postgresql,5080,4,,
+oracle,postgresql,5202,2,,
+oracle,postgresql,5203,2,,
+oracle,postgresql,5033,2,,
+oracle,postgresql,5143,2,,
+oracle,postgresql,5078,2,,
+oracle,postgresql,5797,2,,
+oracle,postgresql,5082,2,,
+oracle,postgresql,5666,2,,
+oracle,postgresql,5665,8,,
+oracle,postgresql,5976,8,crypto(),
+oracle,postgresql,1700,160,BUILT-IN SERVICES-Unsupported Built-in Object,
+oracle,postgresql,1701,16,BUILT-IN SERVICES-Java Stored Object,
+oracle,postgresql,1503,8,CREATE TABLE-External table,
+oracle,postgresql,1500,1,Stored routines-Wrapped objects,
+oracle,postgresql,1502,0.01,Storage-Deferred segment creation,
+oracle,postgresql,1501,4,Parser Error-Parser Error,
+oracle,postgresql,1504,2,Materialized view logs-Logs with Commit SCN,
+oracle,postgresql,1505,2,Spatial-SPATIAL/LOCATOR,
+oracle,postgresql,1506,2,Mail sending-UTL_MAIL,
+oracle,postgresql,1507,4,DB LINK-Database link,
+oracle,postgresql,1508,16,Mail sending-UTL_SMTP.STARTTLS,
+oracle,postgresql,1509,100,Spatial-SDO_NET_MEM ,
+oracle,postgresql,1510,3,DB LINK-Database link,
+oracle,postgresql,1511,8,DB LINK-Database link,
+oracle,postgresql,1512,1,Tablespace-Tablespace data file,
+oracle,postgresql,1513,8,User Roles-User Roles and Privileges,
+oracle,postgresql,1514,0.5,Directory Objects-rdsadmin_util,
+oracle,postgresql,1515,8,Scheduler-Schedule- Job- Program,
+oracle,mysql,502,40,,
+oracle,mysql,500,8,,
+oracle,mysql,503,160,,
+oracle,mysql,311,160,,
+oracle,mysql,313,80,,
+oracle,mysql,314,0.1,,
+oracle,mysql,316,160,,
+oracle,mysql,415,160,,
+oracle,mysql,126,40,,
+oracle,mysql,501,8,,
+oracle,mysql,26,160,,
+oracle,mysql,341,4,,
+oracle,mysql,196,4,,
+oracle,mysql,348,2,,
+oracle,mysql,321,80,,
+oracle,mysql,323,80,,
+oracle,mysql,194,8,,
+oracle,mysql,217,40,,
+oracle,mysql,94,20,,
+oracle,mysql,97,40,,
+oracle,mysql,266,8,,
+oracle,mysql,31,8,,
+oracle,mysql,128,40,,
+oracle,mysql,206,0.5,,
+oracle,mysql,207,0.5,,
+oracle,mysql,208,40,,
+oracle,mysql,317,40,,
+oracle,mysql,324,40,,
+oracle,mysql,583,40,,
+oracle,mysql,190,40,,
+oracle,mysql,191,4,,
+oracle,mysql,192,40,,
+oracle,mysql,195,8,,
+oracle,mysql,218,8,,
+oracle,mysql,330,1,,
+oracle,mysql,331,2,,
+oracle,mysql,30,40,,
+oracle,mysql,351,40,,
+oracle,mysql,576,4,,
+oracle,mysql,200,2,,
+oracle,mysql,302,16,,
+oracle,mysql,253,3,,
+oracle,mysql,193,3,,
+oracle,mysql,95,8,,
+oracle,mysql,343,2,,
+oracle,mysql,354,8,,
+oracle,mysql,93,8,,
+oracle,mysql,63,1,,
+oracle,mysql,122,2,,
+oracle,mysql,342,2,,
+oracle,mysql,198,2,,
+oracle,mysql,199,8,,
+oracle,mysql,201,8,,
+oracle,mysql,296,8,,
+oracle,mysql,327,8,,
+oracle,mysql,328,0.5,,
+oracle,mysql,699,8,,
+oracle,mysql,306,2,,
+oracle,mysql,77,8,,
+oracle,mysql,78,8,,
+oracle,mysql,212,1,,
+oracle,mysql,214,1,,
+oracle,mysql,152,8,,
+oracle,mysql,90,0.5,,
+oracle,mysql,594,8,,
+oracle,mysql,127,8,,
+oracle,mysql,303,8,,
+oracle,mysql,340,8,,
+oracle,mysql,125,8,,
+oracle,mysql,121,8,,
+oracle,mysql,28,8,,
+oracle,mysql,29,8,,
+oracle,mysql,294,8,,
+oracle,mysql,335,4,,
+oracle,mysql,337,2,,
+oracle,mysql,344,0.5,,
+oracle,mysql,346,1,,
+oracle,mysql,504,8,,
+oracle,mysql,600,8,,
+oracle,mysql,87,6,,
+oracle,mysql,118,4,,
+oracle,mysql,119,4,,
+oracle,mysql,242,4,,
+oracle,mysql,244,4,,
+oracle,mysql,320,2,,
+oracle,mysql,234,2,,
+oracle,mysql,235,1.5,,
+oracle,mysql,68,1,,
+oracle,mysql,70,1,,
+oracle,mysql,333,2,,
+oracle,mysql,64,1,,
+oracle,mysql,65,1,,
+oracle,mysql,66,1,,
+oracle,mysql,293,4,,
+oracle,mysql,295,4,,
+oracle,mysql,597,4,,
+oracle,mysql,88,3,,
+oracle,mysql,140,2,,
+oracle,mysql,138,2,,
+oracle,mysql,139,2,,
+oracle,mysql,141,0.5,,
+oracle,mysql,143,2,,
+oracle,mysql,144,0.1,,
+oracle,mysql,220,2,,
+oracle,mysql,225,2,,
+oracle,mysql,209,0.1,,
+oracle,mysql,215,0.1,,
+oracle,mysql,240,2,,
+oracle,mysql,241,2,,
+oracle,mysql,243,2,,
+oracle,mysql,310,2,,
+oracle,mysql,588,2,,
+oracle,mysql,245,2,,
+oracle,mysql,25,2,,
+oracle,mysql,69,1,,
+oracle,mysql,71,1,,
+oracle,mysql,72,1,,
+oracle,mysql,89,2,,
+oracle,mysql,599,2,,
+oracle,mysql,102,2,,
+oracle,mysql,338,2,,
+oracle,mysql,339,2,,
+oracle,mysql,582,2,,
+oracle,mysql,585,1,,
+oracle,mysql,85,1,,
+oracle,mysql,329,0.2,,
+oracle,mysql,345,0.2,,
+oracle,mysql,210,1,,
+oracle,mysql,332,0.2,,
+oracle,mysql,349,0.2,,
+oracle,mysql,236,1,,
+oracle,mysql,237,1,,
+oracle,mysql,238,1,,
+oracle,mysql,524,1,,
+oracle,mysql,334,1,,
+oracle,mysql,336,1,,
+oracle,mysql,211,0.5,,
+oracle,mysql,350,0.5,,
+oracle,mysql,356,1,,
+oracle,mysql,297,1,,
+oracle,mysql,499,1,,
+oracle,mysql,598,1,,
+oracle,mysql,202,0.5,,
+oracle,mysql,203,0.5,,
+oracle,mysql,204,0.5,,
+oracle,mysql,325,0.5,,
+oracle,mysql,213,0.5,,
+oracle,mysql,216,0.5,,
+oracle,mysql,33,0.5,,
+oracle,mysql,32,0.5,,
+oracle,mysql,67,0.5,,
+oracle,mysql,355,0.5,,
+oracle,mysql,27,0.5,,
+oracle,mysql,326,0.2,,
+oracle,mysql,358,0.2,,
+oracle,mysql,103,0.1,,
+oracle,mysql,84,0.1,,
+oracle,mysql,596,0.1,,
+oracle,mysql,82,0.1,,
+oracle,mysql,83,0.1,,
+oracle,mysql,81,0.1,,
+oracle,mysql,205,0.1,,
+oracle,mysql,239,0.1,,
+oracle,mysql,312,0.1,,
+oracle,mysql,75,0.1,,
+oracle,mysql,590,0.1,,
+oracle,mysql,357,0.1,,
+oracle,mysql,352,0.01,,
+oracle,mysql,595,0.01,,
+oracle,mysql,591,0.01,,
+oracle,mysql,593,0.01,,
+db2,postgresql,4500,0.5,CREATE TABLE-Local Variables-Parameters,TIMESTAMP(n>6)  Data Type
+db2,postgresql,4503,8,CREATE TABLE,CREATING GLOBAL TEMPORARY TABLE
+db2,postgresql,4504,2,CREATE TABLE,IMPLICITLY HIDDEN
+db2,postgresql,4501,0.5,SPECIAL DATETIME REGISTERING FUNCTIONS,
+db2,postgresql,4502,0.5,SPECIAL REGISTERING FUNCTIONS,
+db2,postgresql,4505,2,CHECK CONSTRAINT,DETERMINED BY
+db2,postgresql,4506,2,DML,VIEW
+db2,postgresql,4507,0.5,CONSTRAINTS,NOT ENFORCED
+db2,postgresql,4508,0.1,CREATE TABLE,NOT LOGGED lob column
+db2,postgresql,4509,2,SEQUENCE,
+db2,postgresql,4510,2,DDL,CREATE INDEX
+db2,postgresql,4511,8,MATERIALIZED QUERY TABLES,CREATE TABLE 
+db2,postgresql,4512,8,CREATE TABLE,PARTITIONED TABLE
+db2,postgresql,4513,4,CREATE INDEX,PARTITIONED INDEX
+db2,postgresql,4514,0.1,CREATE INDEX,INCLUDE OPTION
+db2,postgresql,4515,2,CREATE TRIGGER,REFERENCING
+db2,postgresql,4516,4,CREATE TYPE,ARRAY TYPE
+db2,postgresql,4517,2,CREATE TYPE,CURSOR
+db2,postgresql,4518,4,CREATE VARIABLE,
+db2,postgresql,4519,4,ALIASES,CREATE ALIAS
+db2,postgresql,4521,40,"FUNCTION, PROCEDURE",Stored external routine
+db2,postgresql,4522,40,"FUNCTION, PROCEDURE",Stored sourced routine
+db2,postgresql,4523,2,INSERT statement,Inserting into query
+db2,postgresql,4524,4,INSERT statement,Returning values into NEW TABLE
+db2,postgresql,4525,2,DML statements,WITH RR|RS|CS|UR
+db2,postgresql,4526,4,BUILT-IN SQL FUNCTIONS,FUNCTION
+db2,postgresql,4527,2,UPDATE statement,Updating with data using query
+db2,postgresql,4528,4,UPDATE statement,Returning values into NEW TABLE
+db2,postgresql,4529,4,UPDATE statement,Returning values into OLD TABLE
+db2,postgresql,4530,4,UPDATE statement,WITH RR|RS|CS|UR
+db2,postgresql,4531,4,DML,INCLUDE columns
+db2,postgresql,4532,4,INSERT statement,INCLUDE columns
+db2,postgresql,4533,4,UPDATE statement,OFFSET | FETCH FIRST
+db2,postgresql,4534,4,DELETE statement,Deleting with data using query
+db2,postgresql,4535,2,DELETE statement,WITH RR|RS|CS|UR
+db2,postgresql,4536,4,DELETE statement,OFFSET | FETCH FIRST
+db2,postgresql,4537,40,FROM,FOR SYSTEM_TIME FROM-FOR SYSTEM_TIME AS OF-FOR SYSTEM_TIME BETWEEN-FOR BUSINESS_TIME AS OF-FOR BUSINESS_TIME FROM-FOR BUSINESS_TIME BETWEEN
+db2,postgresql,4538,4,FROM,FROM OUTER
+db2,postgresql,4539,4,FROM,RETURN DATA UNTIL 
+db2,postgresql,4540,4,DECLARE,
+db2,postgresql,4541,1,MODULE,CREATE MODULE
+db2,postgresql,4542,8,SELECT,
+db2,postgresql,4543,2,DECLARE CURSOR,ASENSITIVE-INSENSITIVE-WITHOUT HOLD-WITH HOLD-WITHOUT RETURN-WITH RETURN
+db2,postgresql,4544,2,SELECT,WITH RR|RS|CS|UR
+db2,postgresql,4545,32,NICKNAMES,CREATE NICKNAME
+db2,postgresql,4546,4,ORDER BY,ORDER OF
+db2,postgresql,4548,2,SELECT,WAIT FOR OUTCOME
+db2,postgresql,4549,8,GOTO,
+db2,postgresql,4550,2,SELECT,FOR READ ONLYFOR FETCH ONLY
+db2,postgresql,4551,8,EXCEPTIONS,CONTINUE HANDLER
+db2,postgresql,4552,4,EXCEPTIONS,UNDO
+db2,postgresql,4553,4,EXCEPTIONS,ERROR HANDLING
+db2,postgresql,4554,4,EXCEPTIONS,ATOMIC
+db2,postgresql,4555,4,EXCEPTIONS,SQLCODE outside a handler
+db2,postgresql,4556,2,EXCEPTIONS,SQLCODE assigned to other variable
+db2,postgresql,4557,1,VIEW,WITH ROW MOVEMENT
+db2,postgresql,4558,8,VIEW,VIEW_TYPE_OWNER IS NOT NULL
+db2,postgresql,4559,4,MERGE,MERGE
+db2,postgresql,4560,8,Unknown,Unknown Object
+db2,postgresql,4561,2,DATETIME casting,
+db2,postgresql,4562,4,Parser Error,Parser Error
+db2,postgresql,4563,4,BUILT-IN SQL FUNCTIONS,Miscellaneous functions
+db2,postgresql,4564,0.5,DATATYPES,
+db2,postgresql,4565,2,DATATYPES,
+db2,postgresql,4566,2,SELECT,HIDDEN COLUMN
+db2,postgresql,4567,8,Unknown,
+db2,postgresql,4568,1,BUILT-IN SQL FUNCTIONS,DATE and TIME conversion
+db2,postgresql,4569,8,CREATE TABLE,CREATING GLOBAL TEMPORARY TABLE
+db2,postgresql,4570,10,COLUMN,Row column
+db2,postgresql,4571,10,COLUMN,REFERENCE COLUMN
+db2,postgresql,4572,8,FUNCTION,RETURNS ROW
+db2,postgresql,4573,8,TYPE METHODS,
+db2,postgresql,4574,4,BUILT-IN SQL FUNCTIONS,Regular expressions (REG_EXP)
+db2,postgresql,4575,8,CREATE TABLE,CREATE GLOBAL TEMPORARY TABLE
+db2,postgresql,4576,8,Unknown,
+db2,postgresql,4577,4,TYPE METHODS,
+db2,postgresql,4578,4,Case sensitive,
+db2,postgresql,4579,4,Case sensitive,
+db2,postgresql,4580,20,FUNCTION,Stored template function
+db2,postgresql,4581,20,FUNCTION MAPPING,Create function mapping for template function
+db2,postgresql,4582,4,DECLARE TYPE,ARRAY TYPE
+db2,postgresql,4583,4,SYS objects,SYS objects
+db2,postgresql,4584,2,DDL,CREATE INDEX
+db2,postgresql,4585,8,TABLE,USAGE GLOBAL TEMPORARY TABLE after CREATE
+db2,postgresql,4586,16,CREATE TABLE,UDT
+db2,postgresql,4587,1,SELECT,SELECT with clause WITH <CTE expression>
+db2,postgresql,4588,16,CREATE TABLE,PARTITIONED TABLE
+db2,postgresql,4589,4,ALTER TABLE,PARTITIONED TABLE
+db2,postgresql,4590,4,ALTER TABLE,PARTITIONED TABLE
+db2,postgresql,4591,8,UPDATE statement,PARTITIONED TABLE
+db2,postgresql,4592,2,CREATE TABLE,TABLE WITH REFERENCES COLUMN
+db2,postgresql,4593,2,CREATE TRIGGER,REFERENCING
+db2,postgresql,4594,2,CREATE TABLE,LOB COLUMNS
+db2,postgresql,4595,2,CREATE TRIGGER,WHEN(condition)- subquery
+db2,postgresql,4596,4,CREATE TABLE,PARTITIONED TABLE
+oracle,postgresql,5026,4,CONTEXT,INITIALIZED clause
+oracle,postgresql,5037,0.5,NESTED SUBPROGRAMS,NESTED SUBPROGRAMS- GLOBAL VARIABLES
+oracle,postgresql,5038,1,LOCAL CURSOR DECLARATION,cursor declaration duplication overload
+oracle,postgresql,5040,0.5,Sharing,sharing
+oracle,postgresql,5041,0.5,View sharing option ,sharing
+oracle,postgresql,5042,0.5,CURSORS,CURSOR DECLARATION SPECIFICATION
+oracle,postgresql,5043,1,HIERARCHICAL QUERY PSEUDOCOLUMNS,HIERARCHICAL QUERIES LEVEL CONNECT LEVEL PSEUDOCOLUMN
+oracle,postgresql,5044,0.5,ALTER TABLE,ADD CONSTRAINT % PRIMARY KEY
+oracle,postgresql,5069,0.5,TEXT LITERAL,ALTERNATIVE QUOTE
+oracle,postgresql,5073,1,HIERARCHICAL QUERY PSEUDOCOLUMNS,HIERARCHICAL QUERIES LEVEL CONNECT PSEUDOCOLUMN
+oracle,postgresql,5079,0.5,DYNAMIC SQL,
+oracle,postgresql,5091,1,DBMS_XMLQUERY- DBMS_XMLGEN,XML- DBMS_XMLQUERY-DBMS_XMLGEN
+oracle,postgresql,5092,1,DBMS_XMLQUERY-DBMS_XMLGEN,XML- DBMS_XMLQUERY-DBMS_XMLGEN
+oracle,postgresql,5097,1,DBMS_XMLGEN-DBMS_XMLQUERY,XML-DBMS_XMLGEN-DBMS_XMLQUERY
+oracle,postgresql,5138,1,XMLTYPE,XMLSEQUENCE
+oracle,postgresql,5141,1,"DBMS_XMLQUERY, DBMS_XMLGEN-XMLTYPE",XML-XMLTYPE-DBMS_XMLQUERY-DBMS_XMLGEN
+oracle,postgresql,5142,1,XMLTYPE,XMLTYPE- XMLSQL- EXTRACT
+oracle,postgresql,5145,0.5,XMLTYPE,XML XMLTYPE
+oracle,postgresql,5146,0.5,XMLTYPE,XML XMLTYPE
+oracle,postgresql,5147,0.5,DBMS_XMLQUERY-DBMS_XMLGEN-XMLTYPE,DBMS_XMLQUERY- DBMS_XMLGEN- XMLTYPE
+oracle,postgresql,5341,1,BUILT-IN SQL FUNCTIONS,LISTAGG
+oracle,postgresql,5562,3,EXCEPTION,CURSOR_ALREADY_OPEN
+oracle,postgresql,5647,4,BULK,fetch bulk collect into
+oracle,postgresql,5667,4,PRAGMA,pragma autonomous_transaction-global cursors
+oracle,postgresql,5668,0.5,DBLINK,DBLINK
+oracle,postgresql,5792,1,BUILT-IN DBMS_AQADM,START_QUEUE
+oracle,postgresql,5793,1,BUILT-IN DBMS_AQADM,GRANT_QUEUE_PRIVILEGE
+oracle,postgresql,5794,1,BUILT-IN DBMS_AQADM,START_QUEUE
+oracle,postgresql,5795,1,BUILT-IN DBMS_AQADM,STOP_QUEUE
+oracle,postgresql,5796,0.5,BUILT-IN SQL FUNCTIONS,to_timestamp
+oracle,postgresql,5969,1,BUILT-IN SQL FUNCTIONS,NLSSORT
+oracle,postgresql,5970,1,BUILT-IN SQL FUNCTIONS,orafce
+oracle,postgresql,5971,1,BUILT-IN SQL FUNCTIONS,NLSSORT
+oracle,postgresql,5972,0.5,SQL*Plus-substitution variable,substitution variable
+oracle,postgresql,5978,1,BULK,"RECORD, TYPE, NOT NULL"
+oracle,postgresql,5979,1,CREATE PARTITIONED TABLE,"partitioned table, CREATE TRIGGER ...BEFORE ... FOR EACH ROW"
+oracle,postgresql,5980,5,DBLINK,remote routine usage
+oracle,postgresql,5981,1,BUILT-IN SQL FUNCTIONS,TRIM 
+oracle,mysql,1,12,Analytic functions,Analytic functions
+oracle,mysql,2,1,SELECT,SELECT FOR UPDATE WAITE
+oracle,mysql,3,1,CURSOR SELECT FOR UPDATE,CURSOR SELECT FOR UPDATE WAITE NOWAIT
+oracle,mysql,4,1,BUILTIN FUNCTIONS REGULAR EXPRESSIONS,REGULAR EXPRESSIONS
+oracle,mysql,5,0.5,Sharing,sharing
+oracle,mysql,6,0.5,View sharing option ,sharing
+oracle,mysql,34,1,Spatial,spatial
+oracle,mysql,35,0.5,MERGE,merge
+oracle,mysql,36,0.5,MERGE,error log
+oracle,mysql,73,0.5,CREATE TABLE,as identity..maxvalue|minvalue|cycle|increment by 
+oracle,mysql,74,0.5,CREATE TABLE ,as identity
+oracle,mysql,76,1,SELECT,WITH function-WITH procedure
+oracle,mysql,86,1,SQL%BULK_EXCEPTIONS,SQL%BULK_EXCEPTIONS
+oracle,mysql,129,5,SELECT,WITH and DBTIMEZONE|SESSIONTIMEZONE|SYSDATE|SYSTIMESTAMP 
+oracle,mysql,197,0.5,CREATE TABLE,table with invisible columns
+oracle,mysql,359,0.5,CREATE TABLE,partition by range | list
+oracle,mysql,360,1,CREATE TABLE,partition by hash
+oracle,mysql,361,1,CREATE PARTITIONED TABLE,partition by
+oracle,mysql,362,1,CREATE PARTITIONED TABLE,partitioned table-foreign key
+oracle,mysql,363,1,CREATE PARTITIONED TABLE,partitioned table-foreign key
+oracle,mysql,364,1,CREATE PARTITIONED TABLE,partitioned table
+oracle,mysql,365,1,SELECT,analytic functions
+oracle,mysql,366,0.5,SELECT,analytic functions
+oracle,mysql,367,0.5,CURSOR,global cursor
+oracle,mysql,400,0.5,CREATE PARTITIONED TABLE,partitioned table
+oracle,mysql,601,0.5,COMMENTS,@comments
+sqlserver,postgresql,7623,0.1,DELETE,DELETE with Table Hint Limited
+sqlserver,postgresql,7643,0.1,EXECUTE,EXECUTE with execute options [RESULT SETS (<result_sets_definition>)]
+sqlserver,postgresql,7705,0.1,CURSORS,TYPE_WARNING option
+sqlserver,postgresql,7784,0.1,DDL,CREATE INDEX
+sqlserver,postgresql,7793,0.1,SEQUENCE,Specific data type
+sqlserver,postgresql,7801,1,CONTROL FLOW,
+sqlserver,postgresql,7804,8,Operators,Bitwise Operators 
+sqlserver,postgresql,7807,4,TRANSACTION,
+sqlserver,postgresql,7818,8,DATATYPES,BYTEA
+sqlserver,postgresql,7826,0.3,CONTROL FLOW,DECLARE / DEFAULT VALUE
+sqlserver,postgresql,7827,0.1,CONTROL FLOW,DECLARE / DEFAULT VALUE
+sqlserver,mysql,692,0.5,DECLARE,
+sqlserver,mysql,817,8,XML,
+sqlserver,mysql,792,0.5,CREATE,
+sqlserver,mysql,625,1,CREATE PROCEDURE with cursor parameter,
+sqlserver,mysql,611,3,UPDATE with clause WITH,
+sqlserver,mysql,735,0.1,@@MAX_CONNECTIONS,
+sqlserver,mysql,756,0.1,VAR,
+sqlserver,mysql,759,0.1,DATEADD,
+sqlserver,mysql,629,1,Naming a transaction,
+sqlserver,mysql,632,1,Rollback a named transaction,
+sqlserver,mysql,815,0.5,Sequence,
+sqlserver,mysql,618,2,UPDATE with clause CURRENT OF cursor_variable_name,
+sqlserver,mysql,698,1,,
+sqlserver,mysql,775,0.5,Arithmetic operators,
+sqlserver,mysql,695,0.5,,
+sqlserver,mysql,909,0.5,EXECUTE,
+sqlserver,mysql,617,0.1,UPDATE with Table Hint Limited,
+sqlserver,mysql,643,0.1,EXECUTE with execute options [RESULT SETS (<result_sets_definition>)],
+sqlserver,mysql,702,0.1,READ_ONLY  option,
+sqlserver,mysql,705,0.1,TYPE_WARNING option,
+sqlserver,postgresql,7691,4,CONTROL FLOW,WAITFOR TIME
+sqlserver,postgresql,7832,8,TRIGGERS,View
+sqlserver,postgresql,7906,10,SELECT,UNPIVOT clause
+sqlserver,postgresql,7912,4,CREATE PARTITIONED TABLE,Partitioned table/Foreign Key
+sqlserver,postgresql,7913,4,CREATE PARTITIONED TABLE,Partitioned table
+sqlserver,postgresql,2008,4,DDL-CREATE TRIGGER,
+sqlserver,postgresql,2014,8,DDL-Server-level objects,
+sqlserver,postgresql,7701,0.1,CURSORS,FAST_FORWARD option
+sqlserver,postgresql,7773,1,Arithmetic operators,Arithmetic operators & dates type
+sqlserver,postgresql,7776,8,DDL,Inline Function
+sqlserver,postgresql,7788,0.1,DDL,CREATE INDEX
+sqlserver,postgresql,7796,4,Update,TOP
+sqlserver,postgresql,7904,16,SYS objects,SYS objects
+sqlserver,postgresql,7907,160,DDL,CREATE TABLE
+sqlserver,mysql,645,8,Execute a pass-through command against a linked server,
+sqlserver,mysql,780,40,,
+sqlserver,mysql,669,1,CURSOR with options FORWARD_ONLY or SCROLL (PRIOR),
+sqlserver,mysql,708,1,,
+sqlserver,mysql,818,8,XML,
+sqlserver,mysql,697,1.5,Identity,
+sqlserver,mysql,757,0.1,VARP,
+sqlserver,mysql,763,0.1,DATENAME,
+sqlserver,mysql,822,0.2,Inline Function,
+sqlserver,mysql,630,1,Marking a transaction,
+sqlserver,mysql,633,2,Delayed transaction durability,
+sqlserver,mysql,612,2,UPDATE with clause TOP (expression) | PERCENT,
+sqlserver,mysql,628,0.5, GOTO,
+sqlserver,mysql,659,2,table,
+sqlserver,mysql,773,0.5,Arithmetic operators & dates type,
+sqlserver,mysql,623,0.1,DELETE with Table Hint Limited,
+sqlserver,mysql,634,0.1,CREATE VIEW with option SCHEMABINDING,
+sqlserver,mysql,640,0.1,EXECUTE with execute options [RECOMPILE],
+sqlserver,mysql,834,0.1,@@rowcount,
+sqlserver,postgresql,7687,8,SELECT,search condition
+sqlserver,postgresql,7707,2,DATATYPES,
+sqlserver,postgresql,2017,10,DDL-Server-level objects,
+sqlserver,postgresql,2018,10,DDL-Server-level objects,
+sqlserver,postgresql,7640,0.1,EXECUTE,EXECUTE with execute options [RECOMPILE]
+sqlserver,postgresql,7654,8,SELECT,GROUP BY CUBE
+sqlserver,postgresql,7655,8,SELECT,Group By Grouping Sets
+sqlserver,postgresql,7696,1,CREATE,
+sqlserver,postgresql,7781,0.1,DDL,CREATE INDEX
+sqlserver,postgresql,7787,0.1,DDL,CREATE INDEX
+sqlserver,postgresql,7814,0.5,SEQUENCE,OVER ORDER BY
+sqlserver,postgresql,7908,160,DDL,CREATE TABLE
+sqlserver,postgresql,2003,5.3,BUILT-IN SERVICES-SQL Server Backup,
+sqlserver,mysql,902,4,SQL Server Agent,
+sqlserver,mysql,688,4,search condition,
+sqlserver,mysql,638,1,CURSOR with options FORWARD_ONLY or SCROLL,
+sqlserver,mysql,639,0.5,CURSOR with options STATIC or KEYSET or DYNAMIC or FAST_FORWARD,
+sqlserver,mysql,670,1,CURSOR with options FORWARD_ONLY or SCROLL (ABSOLUTE),
+sqlserver,mysql,671,1,CURSOR with options FORWARD_ONLY or SCROLL (RELATIVE),
+sqlserver,mysql,776,40,Unknown Object,
+sqlserver,mysql,736,0.1,@@SERVERNAME,
+sqlserver,mysql,765,0.5,DATENAME,
+sqlserver,mysql,767,0.1,DATEPART,
+sqlserver,mysql,768,0.5,DATEPART,
+sqlserver,mysql,811,8,Function,
+sqlserver,mysql,843,2,XML,
+sqlserver,mysql,833,0.2,@@rowcount,
+sqlserver,mysql,605,2,TOP WITH TIES,
+sqlserver,mysql,635,0.1,CREATE VIEW with option ENCRYPTION,
+sqlserver,mysql,794,0.01,UDT,
+sqlserver,postgresql,7627,8,Unknown,
+sqlserver,postgresql,7658,2,DATATYPES,sql_variant
+sqlserver,postgresql,7792,4,SYNONYMS,CREATE
+sqlserver,postgresql,7808,16,Unknown,Unparsed SQL
+sqlserver,postgresql,2004,16,DDL-Filestream,
+sqlserver,postgresql,2005,4,DDL-Filetable,
+sqlserver,postgresql,2009,4,INSERT-BULK,
+sqlserver,postgresql,2010,4,SELECT-BULK,
+sqlserver,postgresql,2013,8,DDL-Linked Server,
+sqlserver,mysql,731,1,WITH <CTE expression>,
+sqlserver,mysql,739,0.1,IIF,
+sqlserver,mysql,762,0.25,DATEDIFF,
+sqlserver,mysql,845,2,MERGE,
+sqlserver,postgresql,7641,0.1,EXECUTE,EXECUTE with execute options [RESULT SETS UNDEFINED]
+sqlserver,postgresql,7672,2,EXECUTE,EXECUTE a character string
+sqlserver,postgresql,7702,0.1,CURSORS,READ_ONLY  option
+sqlserver,postgresql,7704,0.1,CURSORS,OPTIMISTIC  option
+sqlserver,postgresql,7789,0.1,DDL,CREATE INDEX
+sqlserver,postgresql,7797,4,,
+sqlserver,postgresql,7798,4,Delete,TOP
+sqlserver,postgresql,7803,4,CURSORS,FOR UPDATE
+sqlserver,postgresql,7811,8, BUILT-IN SQL FUNCTIONS,CHECKSUM_AGG - GROUPING - UPING_ID
+sqlserver,postgresql,7816,40,DATATYPES,XML
+sqlserver,postgresql,7837,0.5,EXECUTE,EXECUTE
+sqlserver,postgresql,2011,8,DML-Linked Server,
+sqlserver,mysql,696,1.5,Identity,
+sqlserver,mysql,715,3,TRY_PARSE,
+sqlserver,mysql,616,1,UPDATE with option OUTPUT ,
+sqlserver,mysql,649,2,Using ORDER BY in a ranking function � DENSE_RANK,
+sqlserver,mysql,729,0.5,THROW,
+sqlserver,mysql,732,4,Identity,
+sqlserver,mysql,604,2,TOP PERCENT ,
+sqlserver,mysql,677,2,CREATE TABLE,
+sqlserver,mysql,837,0.5,TRY/CATCH,
+sqlserver,mysql,844,0.5,DATETIME2(n>6)-DATETIMEOFFSET(n>6)-TIME(n>6),
+sqlserver,mysql,679,0.1,CREATE TABLE,
+sqlserver,mysql,681,0.1,CREATE INDEX,
+sqlserver,mysql,683,0.1,CREATE INDEX,
+sqlserver,mysql,684,0.1,CREATE INDEX,
+sqlserver,mysql,823,0.1,Table Hints,
+sqlserver,mysql,827,0.1,DECLARE / DEFAULT VALUE,
+sqlserver,postgresql,7662,4,DATATYPES,geography
+sqlserver,postgresql,7690,1,DATATYPES,UDT
+sqlserver,postgresql,7900,8,BUILT-IN SERVICES,Database Mail
+sqlserver,postgresql,7901,8,BUILT-IN SERVICES,Service Broker
+sqlserver,postgresql,7915,3,MERGE,INSERT ON CONFLICT
+sqlserver,postgresql,2000,8,BUILT-IN SERVICES-Database Mail,
+sqlserver,postgresql,2001,16,BUILT-IN SERVICES-Service Broker,
+sqlserver,postgresql,2016,10,DDL-Server-level objects,
+sqlserver,mysql,607,2,INSERT with clause WITH <CTE expression>,
+sqlserver,mysql,906,8,UNPIVOT clause,
+sqlserver,postgresql,7605,2,SELECT,TOP WITH TIES
+sqlserver,postgresql,7642,0.1,EXECUTE,EXECUTE with execute options [RESULT SETS NONE]
+sqlserver,postgresql,7795,0.1,SELECT,search condition
+sqlserver,postgresql,7812,4,DDL,CREATE TABLE
+sqlserver,postgresql,7813,2,CREATE,Encrypted Objects
+sqlserver,postgresql,7817,40,DATATYPES,XML
+sqlserver,postgresql,7823,0.1,DML - FROM,Table Hints
+sqlserver,postgresql,7825,2,DDL,CREATE TABLE
+sqlserver,postgresql,2006,8,DDL-Encrypted Objects,
+sqlserver,mysql,673,40,Unknown Statement,
+sqlserver,mysql,808,40,Unparsed SQL,
+sqlserver,mysql,904,0.1,SYS objects,
+sqlserver,mysql,619,3,DELETE with clause WITH (CTE query definition),
+sqlserver,mysql,622,1,DELETE with option OUTPUT,
+sqlserver,mysql,650,4,Using ORDER BY in a ranking function � NTILE,
+sqlserver,mysql,777,4,Table-valued function,
+sqlserver,mysql,819,0.5,Arithmetic operators,
+sqlserver,mysql,829,1,Variable assignment,
+sqlserver,mysql,836,2,Binary data,
+sqlserver,mysql,663,4,Parser Error,
+sqlserver,mysql,676,0.5,FOREIGN KEY,
+sqlserver,mysql,621,2,DELETE with clause TOP (expression) | PERCENT,
+sqlserver,mysql,774,0.5,Arithmetic operators & mixed type,
+sqlserver,mysql,665,0.5,FILESTREAM data,
+sqlserver,mysql,602,0.1, Limits on indexes for InnoDB Tables,
+sqlserver,mysql,641,0.1,EXECUTE with execute options [RESULT SETS UNDEFINED],
+sqlserver,mysql,682,0.1,CREATE INDEX,
+sqlserver,mysql,828,0.1,reserved,
+sqlserver,mysql,839,0.1,SELECT with clause WITH <CTE expression>,
+sqlserver,postgresql,7659,1,DATATYPES,table
+sqlserver,postgresql,7836,2,UPDATE,Binary data
+sqlserver,postgresql,7902,16,BUILT-IN SERVICES,SQL Server Agent
+sqlserver,postgresql,2007,0.5,DDL-CREATE SCHEMA,
+sqlserver,mysql,842,1,CURSOR options,
+sqlserver,postgresql,7681,0.1,DDL,CREATE INDEX
+sqlserver,postgresql,7682,0.1,DDL,CREATE INDEX
+sqlserver,postgresql,7774,1,Arithmetic operators,Arithmetic operators & mixed type
+sqlserver,postgresql,7782,0.1,DDL,CREATE INDEX
+sqlserver,postgresql,7785,0.1,DDL,CREATE INDEX
+sqlserver,postgresql,7791,0.1,DDL,CREATE INDEX
+sqlserver,postgresql,7806,8,Operators,Comparison Operators
+sqlserver,mysql,908,0.5,CREATE TABLE,
+sqlserver,mysql,687,4,search condition,
+sqlserver,mysql,667,1,CURSOR with options FORWARD_ONLY or SCROLL (LAST),
+sqlserver,mysql,690,2,UDT,
+sqlserver,mysql,686,1,TRIGGERS,
+sqlserver,mysql,655,8,Group By Grouping Sets,
+sqlserver,mysql,691,1,WAITFOR TIME,
+sqlserver,mysql,707,3,,
+sqlserver,mysql,831,1,JOIN,
+sqlserver,mysql,606,1,INSERT into table from EXECUTE procedure ,
+sqlserver,mysql,648,2,Using ORDER BY in a ranking function � RANK,
+sqlserver,mysql,814,0.5,RAISERROR,
+sqlserver,mysql,689,0.5,RETURN,
+sqlserver,mysql,825,2,CREATE TABLE,
+sqlserver,mysql,700,0.1,KEYSET option ,
+sqlserver,mysql,701,0.1,FAST_FORWARD option,
+sqlserver,mysql,703,0.1,SCROLL_LOCKS option,
+sqlserver,mysql,704,0.1,OPTIMISTIC  option,
+sqlserver,mysql,733,0.1,PRINT,
+sqlserver,mysql,810,0.01,SET NOCOUNT ,
+sqlserver,postgresql,7674,8,Unknown,Unknown Clause
+sqlserver,postgresql,7706,2,DATATYPES,datetimeoffset- hierarchyid- sql_variant- uniqueidentifier- xml- geography- geometry- rowversion
+sqlserver,postgresql,7911,4,CREATE PARTITIONED TABLE,Partitioned table/Foreign Key
+sqlserver,postgresql,7663,4,Parser Error,Parser Error
+sqlserver,postgresql,7665,0.5,CREATE TABLE,FILESTREAM data
+sqlserver,postgresql,7700,0.1,CURSORS,KEYSET option 
+sqlserver,postgresql,7775,1,Arithmetic operators,Arithmetic operators
+sqlserver,postgresql,7783,0.1,DDL,CREATE INDEX
+sqlserver,postgresql,7790,0.1,DDL,CREATE INDEX
+sqlserver,postgresql,7794,0.1,User types,User-Defined Data Types
+sqlserver,postgresql,7800,1,CONTROL FLOW,
+sqlserver,postgresql,7810,0.01,SPECIFIC SET statement ,SET NOCOUNT 
+sqlserver,postgresql,7831,2,DDL,CREATE TABLE
+sqlserver,postgresql,7838,0.1,EXECUTE,EXECUTE with option [ LOGIN | USER ]
+sqlserver,postgresql,7839,0.5,EXECUTE,EXECUTE
+sqlserver,mysql,901,12,Service Broker,
+sqlserver,mysql,835,2,Filetable,
+sqlserver,mysql,668,1,CURSOR with options FORWARD_ONLY or SCROLL (FIRST),
+sqlserver,mysql,838,20,DBCC,
+sqlserver,mysql,674,16,Unknown Clause,
+sqlserver,mysql,609,1,INSERT with clause OUTPUT,
+sqlserver,mysql,654,8,GROUP BY CUBE,
+sqlserver,mysql,680,1,CREATE TABLE,
+sqlserver,mysql,754,0.1,STDEV,
+sqlserver,mysql,764,0.1,DATENAME,
+sqlserver,mysql,830,2,LIMIT,
+sqlserver,mysql,840,2,UPDATE with clause WITH <CTE expression>,
+sqlserver,mysql,608,2,INSERT with clause TOP (expression) [PERCENT],
+sqlserver,mysql,813,2,Encrypted Objects,
+sqlserver,mysql,820,2,Arithmetic operators,
+sqlserver,mysql,610,0.1,INSERT with Table Hint Limited,
+sqlserver,mysql,675,0.1,CREATE INDEX,
+sqlserver,mysql,826,0.1,DECLARE / DEFAULT VALUE,
+sqlserver,mysql,841,0.1,Identity,
+sqlserver,postgresql,7628,0.5,CONTROL FLOW, GOTO
+sqlserver,postgresql,7645,6,EXECUTE,Execute a pass-through command against a linked server
+sqlserver,postgresql,7664,8,DATATYPES,geometry
+sqlserver,postgresql,7688,8,SELECT,search condition
+sqlserver,postgresql,7708,2,DATATYPES,
+sqlserver,postgresql,7809,4,TRIGGERS,INSTEAD OF
+sqlserver,postgresql,7835,4,DDL,Filetable
+sqlserver,postgresql,7903,16,BUILT-IN SERVICES,SQL Server Backup
+sqlserver,postgresql,7909,8,TRIGGERS,UPDATE(column)/COLUMNS_UPDATED() 
+sqlserver,postgresql,7910,4,CREATE PARTITIONED TABLE,Partitioned table
+sqlserver,postgresql,7914,4,CREATE PARTITIONED TABLE,Update statement
+sqlserver,mysql,900,8,Database Mail,
+sqlserver,mysql,646,2,Specifying a collation,
+sqlserver,mysql,760,0.25,DATEDIFF,
+sqlserver,mysql,905,8,PIVOT clause,
+sqlserver,postgresql,7653,8,SELECT,GROUP BY CUBE
+sqlserver,postgresql,7657,40,DATATYPES,hierarchyid
+sqlserver,postgresql,7675,0.1,DDL,CREATE INDEX
+sqlserver,postgresql,7679,0.1,DDL,CREATE TABLE
+sqlserver,postgresql,7680,8,DDL,CREATE TABLE
+sqlserver,postgresql,7695,0.5,EXECUTE,
+sqlserver,postgresql,7786,0.1,DDL,CREATE INDEX
+sqlserver,postgresql,7799,4,INSERT,TOP
+sqlserver,postgresql,7802,4,CONTROL FLOW,
+sqlserver,postgresql,7805,8,Operators,Comparison Operators
+sqlserver,postgresql,7819,8,INSERT,EXECUTE
+sqlserver,postgresql,7821,8,CONTROL FLOW,WAITFOR DELAY
+sqlserver,postgresql,7829,8,UPDATE,Variable assignment
+sqlserver,postgresql,7830,2,Arithmetic operators,Arithmetic operators
+sqlserver,mysql,631,,Distributed transaction,
+sqlserver,mysql,637,1,CURSOR with option GLOBAL,
+sqlserver,mysql,712,3,PARSE,
+sqlserver,mysql,734,0.1,@@LANGUAGE,
+sqlserver,mysql,737,0.1,@@VERSION,
+sqlserver,mysql,753,0.1,ROUND,
+sqlserver,mysql,755,0.1,STDEVP,
+sqlserver,mysql,647,2,OVER,
+sqlserver,mysql,678,1,CHECK CONSTRAINT,
+sqlserver,mysql,730,0.5,THROW,
+sqlserver,mysql,624,2, DELETE with clause CURRENT OF cursor_variable_name,
+sqlserver,mysql,672,1,EXECUTE a character string,
+sqlserver,mysql,706,2,datetimeoffset-hierarchyiu-sql_variant-uniqueidentifier-xml-geography-geometry-rowversion,
+sqlserver,mysql,779,1,QUERY,
+sqlserver,mysql,832,1,MERGE,
+sqlserver,mysql,644,1,EXECUTE a character string with user login option,
+sqlserver,mysql,728,1,CREATE INDEX,
+sqlserver,mysql,601,0.5,Foreign keys on  BLOB and TEXT columns  ,
+sqlserver,mysql,910,0.5,EXECUTE,
+sqlserver,mysql,636,0.1,CREATE VIEW with option VIEW_METADATA,
+sqlserver,mysql,642,0.1,EXECUTE with execute options [RESULT SETS NONE],
+sqlserver,postgresql,7637,2,CURSORS,CURSOR with option GLOBAL
+sqlserver,postgresql,7639,2,CURSORS,CURSOR with options STATIC or KEYSET or DYNAMIC or FAST_FORWARD
+sqlserver,postgresql,7646,2,SELECT,ORDER BY Specifying a collation
+sqlserver,postgresql,7905,10,SELECT,PIVOT clause
+sqlserver,postgresql,7916,3,MERGE,
+sqlserver,postgresql,2012,8,DDL-Linked Server,
+sqlserver,postgresql,2015,8,DDL-Server-level objects,
+sqlserver,postgresql,2019,10,DDL-Server-level objects,
+sqlserver,mysql,903,1,SQL Server Backup,
+sqlserver,mysql,907,0.5,CREATE TABLE,
+sqlserver,mysql,761,0.25,DATEDIFF,
+sqlserver,mysql,613,1,LIMIT,"UPDATE, LIMIT"
+sqlserver,mysql,620,0.5,DDL,create table
+sqlserver,mysql,656,0.5,DDL,create table
+sqlserver,mysql,769,1,Spatial methods,spatial
+sqlserver,mysql,772,0.5,Arithmetic operators,arithmetic operators & dates type
+sqlserver,mysql,778,4,DDL,table-valued function
+sqlserver,mysql,911,4,MERGE,merge with option output
+sqlserver,mysql,912,0.5,sp_prepare,"sp_prepare with optional parameter ""options"""
+sqlserver,mysql,913,12,Analytic functions,Analytic functions
+sqlserver,mysql,914,1,sp_unprepare,sp_unprepare
+sqlserver,mysql,915,1,DDL,ddl
+sqlserver,mysql,916,0.5,Unknown,TRANSACTION
+sqlserver,mysql,917,0.5,DML,"INSERT, EXEC"
+sqlserver,mysql,918,4,DML,INSERT
+sqlserver,mysql,919,0.5,"CREATE TABLE, Local Variables","NUMERIC(scale>30), DECIMAL(scale>30)"
+sqlserver,mysql,920,1,DATATYPES,identity
+sqlserver,mysql,921,20,DDL,graph tables
+sqlserver,mysql,922,20,DDL,graph tables
+sqlserver,mysql,923,20,DDL,graph tables
+sqlserver,mysql,924,20,DDL,INDEX 
+sqlserver,mysql,925,0.5,DDL,create table
+sqlserver,mysql,926,4,VIEW,create indexed view
+sqlserver,postgresql,7606,0.5,CONSTRAINTS,CONSTRAINT PRIMARY FOREIGN KEY PARTITION TABLE
+sqlserver,postgresql,7607,0.5,BUILT-IN SQL FUNCTIONS,SCOPE_IDENTITY()
+sqlserver,postgresql,7608,0.5,BUILT-IN SQL FUNCTIONS,SET IDENTITY_INSERT
+sqlserver,postgresql,7610,1,DDL,ddl
+sqlserver,postgresql,7634,0.5,VIEW,create view with option schemabinding
+sqlserver,postgresql,7635,0.5,VIEW,create view with option encryption
+sqlserver,postgresql,7636,0.5,VIEW,create view with option view_metadata
+sqlserver,postgresql,7678,0.5,DDL,create table
+sqlserver,postgresql,7772,0.5,Arithmetic operators,arithmetic operators & dates type
+sqlserver,postgresql,7833,0.5,BUILT-IN SQL FUNCTIONS,@@rowcount
+sqlserver,postgresql,7834,0.5,BUILT-IN SQL FUNCTIONS,@@rowcount
+sqlserver,postgresql,7840,1,CONTROL FLOW,dbcc
+sqlserver,postgresql,7841,1,TRANSACTION,
+sqlserver,postgresql,7917,1,Spatial methods,spatial
+sqlserver,postgresql,7918,2,View,table-valued function
+sqlserver,postgresql,7919,4,FOR XML,directives
+sqlserver,postgresql,7920,4,FOR XML,mode
+sqlserver,postgresql,7921,4,OUTPUT,output
+sqlserver,postgresql,7922,0.5,Error handling,try/catch
+sqlserver,postgresql,7923,4,DDL,inline function
+sqlserver,postgresql,7924,0.5,OPENXML,columns xpath expression
+sqlserver,postgresql,7925,4,OPENXML,xml data mapping
+sqlserver,postgresql,7926,4,FOR XML,directives
+sqlserver,postgresql,7927,1,Update,top
+sqlserver,postgresql,7929,4,DML,INSERT
+sqlserver,postgresql,7930,0.5,DML,"INSERT, EXEC"
+sqlserver,postgresql,7931,20,DDL,graph tables
+sqlserver,postgresql,7932,20,DDL,graph tables
+sqlserver,postgresql,7933,20,DDL,graph tables
+sqlserver,postgresql,7934,0.5,DDL,create index
+sqlserver,postgresql,7935,20,DDL,INDEX 
+sqlserver,postgresql,7936,1,DATATYPES,identity
+sqlserver,postgresql,7937,4,VIEW,create indexed view
+sqlserver,postgresql,7938,1,DML,"SELECT, DELETE, UPDATE, MERGE"
+sqlserver,postgresql,7939,1,DML,JSON
+sqlserver,postgresql,7940,1,DML,JSON
+sqlserver,postgresql,7941,1,DML,SELECT
+sybase,postgresql,3000,1,,
+sybase,postgresql,3001,1,,
+sybase,postgresql,3002,0.25,,
+sybase,postgresql,3003,1.5,,
+sybase,postgresql,3004,0.25,,
+sybase,postgresql,3007,1,,
+sybase,postgresql,3012,0.5,,
+sybase,postgresql,3013,0.5,,
+sybase,postgresql,3014,0.25,,
+sybase,postgresql,3015,0.5,,
+sybase,postgresql,3016,0.25,,
+sybase,postgresql,3017,0.25,,
+sybase,postgresql,3018,0.5,,
+sybase,postgresql,3019,1,,
+sybase,postgresql,3021,0.5,,
+sybase,postgresql,3022,0.25,,
+sybase,postgresql,3024,0.25,,
+sybase,postgresql,3025,0.5,,
+sybase,postgresql,3026,0.25,,
+sybase,postgresql,3027,0.25,,
+sybase,postgresql,3028,0.25,,
+sybase,postgresql,3029,0.5,,
+sybase,postgresql,3030,0.5,,
+sybase,postgresql,3032,1,,
+sybase,postgresql,3033,0.25,,
+sybase,postgresql,3034,0.5,,
+sybase,postgresql,3035,0.5,,
+sybase,postgresql,3036,0.5,,
+sybase,postgresql,3037,0.5,,
+sybase,postgresql,3038,0.5,,
+sybase,postgresql,3039,1,,
+sybase,postgresql,3043,0.5,,
+sybase,postgresql,3044,0.25,,
+sybase,postgresql,3045,0.5,,
+sybase,postgresql,3046,0.25,,
+sybase,postgresql,3047,0.25,,
+sybase,postgresql,3048,0.25,,
+sybase,postgresql,3049,0.25,,
+sybase,postgresql,3050,0.25,,
+sybase,postgresql,3052,0.25,,
+sybase,postgresql,3053,0.5,,
+sybase,postgresql,3054,0.25,,
+sybase,postgresql,3056,0.25,,
+sybase,postgresql,3057,0.25,,
+sybase,postgresql,3058,0.5,,
+sybase,postgresql,3060,1,,
+sybase,postgresql,3061,0.5,,
+sybase,postgresql,3062,0.5,,
+sybase,postgresql,3064,0.5,,
+sybase,postgresql,3065,0.5,,
+sybase,postgresql,3066,1,,
+sybase,postgresql,3067,0.25,,
+sybase,postgresql,3068,0.25,,
+sybase,postgresql,3069,1,,
+sybase,postgresql,3070,0.5,,
+sybase,postgresql,3071,0.25,,
+sybase,postgresql,3072,0.25,,
+sybase,postgresql,3078,0.25,,
+sybase,postgresql,3079,1,,
+sybase,postgresql,7623,0.5,,
+sybase,postgresql,7628,0.25,,
+sybase,postgresql,7634,0.5,,
+sybase,postgresql,7635,1,,
+sybase,postgresql,7637,1,,
+sybase,postgresql,7639,1,,
+sybase,postgresql,7672,0.25,,
+sybase,postgresql,7675,0.25,,
+sybase,postgresql,7679,0.25,,
+sybase,postgresql,7680,0.25,,
+sybase,postgresql,7681,0.25,,
+sybase,postgresql,7682,0.25,,
+sybase,postgresql,7687,0.25,,
+sybase,postgresql,7690,0.5,,
+sybase,postgresql,7700,0.5,,
+sybase,postgresql,7701,0.5,,
+sybase,postgresql,7702,0.25,,
+sybase,postgresql,7704,0.25,,
+sybase,postgresql,7705,0.25,,
+sybase,postgresql,7773,0.5,,
+sybase,postgresql,7774,1,,
+sybase,postgresql,7775,0.5,,
+sybase,postgresql,7776,1,,
+sybase,postgresql,7783,0.25,,
+sybase,postgresql,7788,0.25,,
+sybase,postgresql,7789,0.25,,
+sybase,postgresql,7792,1.5,,
+sybase,postgresql,7794,0.25,,
+sybase,postgresql,7799,0.25,,
+sybase,postgresql,7801,0.5,,
+sybase,postgresql,7802,0.5,,
+sybase,postgresql,7803,0.25,,
+sybase,postgresql,7804,0.25,,
+sybase,postgresql,7805,0.25,,
+sybase,postgresql,7806,0.25,,
+sybase,postgresql,7809,0.5,,
+sybase,postgresql,7812,0.25,,
+sybase,postgresql,7816,0.5,,
+sybase,postgresql,7817,0.5,,
+sybase,postgresql,7819,0.5,,
+sybase,postgresql,7823,0.5,,
+sybase,postgresql,7825,0.5,,
+sybase,postgresql,7826,0.25,,
+sybase,postgresql,7827,0.5,,
+sybase,postgresql,7829,0.5,,
+sybase,postgresql,7830,0.25,,
+sybase,postgresql,7831,1,,
+sybase,postgresql,7833,0.25,,
+sybase,postgresql,7834,0.25,,
+sybase,postgresql,7837,0.5,,
+sybase,postgresql,7838,0.5,,
+sybase,postgresql,7839,0.5,,
+sybase,postgresql,7840,1,,
+sybase,postgresql,7904,0.5,,
+sybase,postgresql,7907,1,,
+sybase,postgresql,7908,1,,
+sybase,postgresql,7909,0.5,,
+sybase,postgresql,7910,1,,
+sybase,postgresql,7911,0.25,,
+sybase,postgresql,7912,0.25,,
+sybase,postgresql,7913,0.5,,
+sybase,postgresql,7914,0.5,,
+sybase,postgresql,7915,0.25,,
+sybase,postgresql,7916,0.25,,
+sybase,postgresql,7923,1,,
+sybase,postgresql,7924,1,,
+sybase,postgresql,7925,1,,
+sybase,postgresql,7927,0.5,,
