@@ -28,8 +28,8 @@ CREATE EXTERNAL TABLE `aggtbl`(
   `databasename` string, 
   `schemaname` string, 
   `hostname` string, 
-  `name` int, 
-  `description` int, 
+  `name` string, 
+  `description` string,  
   `schemaname2` string, 
   `target` string, 
   `code_obj_conv_pcs` string, 
@@ -39,8 +39,11 @@ CREATE EXTERNAL TABLE `aggtbl`(
   `customer` string,
   `batch` string
   )
-ROW FORMAT DELIMITED 
-  FIELDS TERMINATED BY ',' 
+ROW FORMAT SERDE 
+  'org.apache.hadoop.hive.serde2.OpenCSVSerde' 
+WITH SERDEPROPERTIES ( 
+  'quoteChar'='\"', 
+  'separatorChar'=',') 
 STORED AS INPUTFORMAT 
   'org.apache.hadoop.mapred.TextInputFormat' 
 OUTPUTFORMAT 
@@ -286,6 +289,31 @@ TBLPROPERTIES (
   'skip.header.line.count'='1', 
   'transient_lastDdlTime'='1633411104');
 
+CREATE EXTERNAL TABLE `oracleinternal`(
+  `user` string COMMENT 'from deserializer', 
+  `oracle_maintain` string COMMENT 'from deserializer', 
+  `common` string COMMENT 'from deserializer', 
+  `noexp` string COMMENT 'from deserializer', 
+  `noexpdp` string COMMENT 'from deserializer', 
+  `nosby` string COMMENT 'from deserializer', 
+  `defpwd` string COMMENT 'from deserializer', 
+  `sysaux` string COMMENT 'from deserializer', 
+  `details` string COMMENT 'from deserializer')
+ROW FORMAT SERDE 
+  'org.apache.hadoop.hive.serde2.OpenCSVSerde' 
+WITH SERDEPROPERTIES ( 
+  'quoteChar'='\"', 
+  'separatorChar'=',') 
+STORED AS INPUTFORMAT 
+  'org.apache.hadoop.mapred.TextInputFormat' 
+OUTPUTFORMAT 
+  'org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat'
+LOCATION
+  's3://S3_BUCKET/oracleinternal'
+TBLPROPERTIES (
+  'has_encrypted_data'='false', 
+  'skip.header.line.count'='1', 
+  'transient_lastDdlTime'='1637744400');
 
 CREATE OR REPLACE VIEW instancelookup AS 
 SELECT
@@ -527,24 +555,26 @@ from msqlperfdata ) a  , instancelookup i
 
 
 
-CREATE OR REPLACE VIEW vw_aggregated AS 
-SELECT
-  "upper"("substr"(target, ("strpos"(target, 'for') + 4))) target
-, "upper"(hostname) hostname
-, "upper"(databasename) databasename
-, "upper"(schemaname) schemaname
-, code_obj_conv_pcs
-, storage_obj_conv_pcs
-, syntax_obj_conv_pcs
-, schema_complexity
-, customer
-, batch
-FROM
-  aggtbl;
+CREATE OR REPLACE VIEW vw_aggregated AS
+SELECT  (CASE WHEN ("split"("upper"(target),' ')[2] = 'RDS') THEN (CASE WHEN ("split"("upper"(target),' ')[4] = 'MICROSOFT') THEN 'MSSQL' ELSE "split"("upper"(target),' ')[4] END) WHEN ("split"("upper"(target),' ')[2] = 'AURORA') THEN "concat"("concat"("split"("upper"(target),' ')[2],'_'),"substr"("split"("upper"(target),' ')[3],2)) ELSE target END) target
+       ,"upper"(hostname) hostname
+       ,"upper"(databasename) databasename
+       ,"upper"(schemaname) schemaname
+       , "upper"(name) name
+       , "upper"(description) description
+       ,code_obj_conv_pcs
+       ,storage_obj_conv_pcs
+       ,syntax_obj_conv_pcs
+       ,schema_complexity
+       ,customer
+       ,batch
+FROM aggtbl
+WHERE ("length"("trim"(storage_obj_conv_pcs)) > 0);
 
 
-CREATE OR REPLACE VIEW vw_sctsinglecsv AS 
-(
+CREATE OR REPLACE VIEW "vw_sctsinglecsv" AS
+WITH
+  a AS (
    SELECT
      source
    , target
@@ -552,7 +582,8 @@ CREATE OR REPLACE VIEW vw_sctsinglecsv AS
    , "upper"("replace"(databasename, ' ', '')) databasename
    , "upper"("replace"(schemaname, ' ', '')) schemaname
    , category
-   , "count"(occurrence) occurrence
+   , occurrence
+   , (CASE WHEN ("strpos"("lower"(occurrence), 'line') = 0) THEN occurrence ELSE "split_part"(occurrence, ':', 1) END) object
    , actionitem
    , subject
    , "group"
@@ -563,8 +594,54 @@ CREATE OR REPLACE VIEW vw_sctsinglecsv AS
    , complexity
    FROM
      sctsinglescv
-   GROUP BY source, target, hostname, databasename, schemaname, category, actionitem, subject, "group", description, document, recommendedaction, filtered, complexity
-); 
+) 
+, b AS (
+   SELECT
+     source
+   , target
+   , hostname
+   , databasename
+   , schemaname
+   , category
+   , occurrence
+   , (CASE WHEN ("lower"("split_part"(object, '.', 1)) = 'databases') THEN "element_at"("split"(object, '.'), 5) ELSE "element_at"("split"(object, '.'), 3) END) object_type
+   , (CASE WHEN ("lower"("split_part"(object, '.', 1)) = 'databases') THEN "element_at"("split"(object, '.'), 6) ELSE "element_at"("split"(object, '.'), 4) END) object_name
+   , (CASE WHEN (("cardinality"("split"(object, '.')) > 4) AND ("lower"("split_part"(object, '.', 1)) = 'databases')) THEN "element_at"("split"(object, '.'), 7) WHEN (("cardinality"("split"(object, '.')) > 4) AND ("lower"("split_part"(object, '.', 1)) <> 'databases')) THEN "element_at"("split"(object, '.'), 5) ELSE '' END) subobject_type
+   , (CASE WHEN (("cardinality"("split"(object, '.')) > 4) AND ("lower"("split_part"(object, '.', 1)) = 'databases')) THEN "replace"(object, "concat"("split_part"(object, '.', 1), '.', "split_part"(object, '.', 2), '.', "split_part"(object, '.', 3), '.', "split_part"(object, '.', 4), '.', "split_part"(object, '.', 5), '.', "split_part"(object, '.', 6), '.', "split_part"(object, '.', 7), '.')) WHEN (("cardinality"("split"(object, '.')) > 4) AND ("lower"("split_part"(object, '.', 1)) <> 'databases')) THEN "replace"(object, "concat"("split_part"(object, '.', 1), '.', "split_part"(object, '.', 2), '.', "split_part"(object, '.', 3), '.', "split_part"(object, '.', 4), '.', "split_part"(object, '.', 5), '.')) ELSE null END) subobject_name
+   , actionitem
+   , subject
+   , "group"
+   , description
+   , "replace"(document, 'http:', 'https:') document
+   , recommendedaction
+   , filtered
+   , complexity
+   FROM
+     a
+) 
+SELECT
+  source
+, target
+, hostname
+, databasename
+, schemaname
+, category
+, "count"(occurrence) occurrence
+, object_type
+, object_name
+, subobject_type
+, subobject_name
+, actionitem
+, subject
+, "group"
+, description
+, document
+, recommendedaction
+, filtered
+, complexity
+FROM
+  b
+GROUP BY source, target, hostname, databasename, schemaname, category, object_type, object_name, subobject_type, subobject_name, actionitem, subject, "group", description, document, recommendedaction, filtered, complexity; 
 
 CREATE OR REPLACE VIEW vw_sctwqf2exception AS 
 SELECT
@@ -651,7 +728,7 @@ WITH
    , "round"(((("ceiling"((CAST(a.noocc AS int) * 5E-1)) * b.wqf_time) + (((CAST(a.noocc AS int) - "ceiling"((CAST(a.noocc AS int) * 5E-1))) * b.wqf_time) * 5E-1)) / CAST(a.noocc AS int)), 2) wqf_50_50_per
    FROM
      (a
-   LEFT JOIN sctwqfweightage b ON (a.actionitem = b.actioncode))
+   LEFT JOIN sctwqfweightage b ON (((a.actionitem = b.actioncode) AND (a.source = b.source)) AND (a.target = b.target)))
 ) 
 SELECT
   source
@@ -673,7 +750,7 @@ FROM
   efforts
 GROUP BY source, target, hostname, databasename, schemaname, actionitem, category, wqf_time;
 
-CREATE OR REPLACE VIEW vw_datamart AS 
+CREATE OR REPLACE VIEW "vw_datamart" AS 
 WITH
   cte1 AS (
    SELECT
@@ -683,6 +760,10 @@ WITH
    , a.databasename
    , a.schemaname
    , a.category
+   , a.object_type
+   , a.object_name
+   , a.subobject_type
+   , a.subobject_name
    , a.actionitem
    , a.occurrence
    , d.wqf_10_90_per
@@ -703,14 +784,17 @@ WITH
      (((vw_sctsinglecsv a
    LEFT JOIN vw_summary_agg b ON (((((a.source = b.source) AND (a.target = b.target)) AND (a.hostname = b.hostname)) AND (a.databasename = b.databasename)) AND (a.schemaname = b.schemaname)))
    LEFT JOIN sctpdf c ON (((((a.source = "upper"(c.source)) AND (a.target = "upper"(c.target))) AND (a.hostname = "upper"("replace"(c.hostname, ' ', '')))) AND (a.databasename = "upper"("replace"(c.databasename, ' ', '')))) AND (a.schemaname = "upper"("replace"(c.schemaname, ' ', '')))))
-   LEFT JOIN vw_wqf_actionitemsummary d ON (a.source = d.source) AND (a.target = d.target) AND (a.hostname = d.hostname) AND (a.databasename = d.databasename) AND (a.schemaname = d.schemaname) AND (a.actionitem = d.actionitem)  AND (a.category = d.category))
-UNION ALL    
-SELECT
+   LEFT JOIN vw_wqf_actionitemsummary d ON (((((((a.source = d.source) AND (a.target = d.target)) AND (a.hostname = d.hostname)) AND (a.databasename = d.databasename)) AND (a.schemaname = d.schemaname)) AND (a.actionitem = d.actionitem)) AND (a.category = d.category)))
+UNION ALL    SELECT
      b.source
    , b.target
    , b.hostname
    , b.databasename
    , b.schemaname
+   , null
+   , null
+   , null
+   , null
    , null
    , null
    , null
@@ -745,6 +829,10 @@ WHERE (((((a.source = b.source) AND (a.target = b.target)) AND (a.hostname = b.h
    , databasename
    , schemaname
    , '' category
+   , '' object_type
+   , '' object_name
+   , '' subobject_type
+   , '' subobject_name
    , '-10' actionitem
    , "sum"(autoconverted) occurrence
    , 0 wqf_10_90_per
@@ -775,10 +863,12 @@ UNION    SELECT *
 ) 
 SELECT
   u.*
-  , "round"((u.occurrence * wqf_10_90_per), 2) wqf_10_90
+, "round"((u.occurrence * wqf_10_90_per), 2) wqf_10_90
 , "round"((u.occurrence * wqf_30_70_per), 2) wqf_30_70
 , "round"((u.occurrence * wqf_50_50_per), 2) wqf_50_50
 , (CASE WHEN (agg.schema_complexity IN ('1', '2', '3')) THEN 'Easy' WHEN (agg.schema_complexity IN ('4', '5', '6')) THEN 'Medium' WHEN (agg.schema_complexity IN ('7', '8', '9')) THEN 'Complex' ELSE 'Very Complex' END) schema_complexity
+, agg.name applicationname
+, agg.description applicationdescription
 , agg.code_obj_conv_pcs
 , agg.storage_obj_conv_pcs
 , agg.syntax_obj_conv_pcs
@@ -788,8 +878,10 @@ SELECT
 , exc.eeteffort2
 , COALESCE(p.instance_type, 'No Performance Data') recommended_instance
 , COALESCE(p.instance_category, 'No Performance Data') recommended_instance_category
+, COALESCE(oi.oracle_maintain, 'N') system_maintained_schema
 FROM
-  (((uniontable u
+  ((((uniontable u
 LEFT JOIN vw_aggregated agg ON ((((u.target = agg.target) AND (u.databasename = "replace"(agg.databasename, ' ', ''))) AND (u.hostname = "replace"(agg.hostname, ' ', ''))) AND (u.schemaname = "replace"(agg.schemaname, ' ', ''))))
 LEFT JOIN vw_sctwqf2exception exc ON (u.actionitem = exc.actionitem))
-LEFT JOIN performanceview p ON ((u.hostname = "upper"("replace"(p.host, ' ', ''))) AND ("upper"(u.databasename) = "upper"("replace"(p.database_name, ' ', '')))));
+LEFT JOIN performanceview p ON ((u.hostname = "upper"("replace"(p.host, ' ', ''))) AND ("upper"(u.databasename) = "upper"("replace"(p.database_name, ' ', '')))))
+LEFT JOIN oracleinternal oi ON ((u.source = 'ORACLE') AND (u.schemaname = "upper"("replace"(oi.user, ' ', '')))));

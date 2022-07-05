@@ -44,13 +44,12 @@ updating: staticfiles/dmafDataStructures/wqf_estimate_default.csv (deflated 77%)
 Required deployment files will packaged in build dir:
 ```
 $ ls
-CODE_OF_CONDUCT.md	NOTICE			cfn			ec2-scripts		prerequisites
-CONTRIBUTING.md		README.md		cloudwatch_config	lambda_functions
-LICENSE			build			drivers			package.sh
+README.md		acat_report		cfn			ec2-scripts		mpi4py-3.0.3		prerequisites
+acat-output.json	build			cfnnag.log		lambda_functions	package.sh
 $ ls build/
-asyncmodifycsvfiles.zip			dmafv2.zip				quicksight-fast_PS_Oregon-DEV.yml
-athenacreation.zip			drivers					sqspoll.zip
-cloudwatchagent-linux-config.json	modifycsvfiles.zip			timecalculation.zip
-dmaf-dk.yml				quicksight-ProServe-Ohio.yml
+asyncmodifycsvfiles.zip			dmafv2.zip				sqspoll.zip
+athenacreation.zip			modifycsvfiles.zip			timecalculation.zip
+dmaf-dk-4.yml				quicksight-ProServe-Ohio.yml
+dmaf-dk.yml				quicksight-fast_PS_Oregon-DEV.yml
 ``` 
 upload all the files in the build dir to s3 bucket to create the stack.

@@ -42,18 +42,33 @@ response = sm_client.get_secret_value(
 # print (response)
 drivers_path = os.path.join(SCRIPTS_DIR,"drivers")
 sql_drivers = glob.glob(drivers_path + "/mssql*jre11*.jar")
-print (sql_drivers)
-sql_jar_path = sql_drivers[0]
+sql_jar_path = ""
+if len(sql_drivers) > 0:
+    print (sql_drivers)
+    sql_jar_path = sql_drivers[0]
+else:
+    print ("No MSSQL Drivers found.")
 oracle_drivers = glob.glob(drivers_path + "/ojdbc8.jar")
-print (oracle_drivers)
-# exit(0)
-ora_jar_path = oracle_drivers[0]
+ora_jar_path = ""
+if len(oracle_drivers) > 0:
+    print (oracle_drivers)
+    ora_jar_path = oracle_drivers[0]
+else:
+    print ("No Oracle Drivers found.")
 db2_drivers = glob.glob(drivers_path + "/db2jcc4.jar")
-print (db2_drivers)
-db2_jar_path = db2_drivers[0]
+db2_jar_path = ""
+if len(db2_drivers) > 0:
+    print (db2_drivers)
+    db2_jar_path = db2_drivers[0]
+else:
+    print ("No DB2 Drivers found.")
 sybase_drivers = glob.glob(drivers_path + "/jconn4.jar")
-print (sybase_drivers)
-sybase_jar_path = sybase_drivers[0]
+sybase_jar_path = ""
+if len(sybase_drivers):
+    print (sybase_drivers)
+    sybase_jar_path = sybase_drivers[0]
+else:
+    print ("No SYBASE Drivers found.")
 
 
 current_ram_usage = psutil.virtual_memory().percent
@@ -120,23 +135,7 @@ def uploads3(dir_name,filename,s3inputbucket):
     s3.meta.client.upload_file(filename+'.zip', s3inputbucket, filename+'.zip')
     print("upload done")
 
-def uploadstaticfiles(s3inputbucket):
-        wdir=os.path.join(SCRIPTS_DIR, 'staticfiles/dmafDataStructures')
-        f=os.listdir(wdir)
-        #print(f)
-        for filename in f:
-            if("wqf" in filename):
-                s3.meta.client.upload_file(wdir+'/'+filename, s3inputbucket, 'Inputfile/wqfweightage/'+filename)
-            elif("sct" in filename):
-                s3.meta.client.upload_file(wdir+'/'+filename, s3inputbucket, 'Inputfile/sctactioncodes/'+filename)
-            elif("Complexity" in filename):
-                s3.meta.client.upload_file(wdir+'/'+filename, s3inputbucket, 'Inputfile/complexityweightage/'+filename)
-            elif("rds" in filename):
-                s3.meta.client.upload_file(wdir+'/'+filename, s3inputbucket, 'Inputfile/rdsinfo/'+filename)
-            elif("coderanges" in filename):
-                s3.meta.client.upload_file(wdir+'/'+filename, s3inputbucket, 'Inputfile/actioncodes/'+filename)
-            else:
-                s3.meta.client.upload_file(wdir+'/'+filename, s3inputbucket, 'Inputfile/'+filename)
+
 def main():
     #run java command
     import boto3
@@ -206,7 +205,6 @@ def main():
             rcode.wait()
     except Exception as e:
         print(str(e))
-    # uploadstaticfiles(s3inputbucket)
     os.remove(sctInputFile)
     uploads3(project_dir,ProjectName,s3inputbucket)
 if __name__ == "__main__":

@@ -29,8 +29,24 @@ from botocore.exceptions import ClientError
 import json
 import time
 import urllib.request
+import logging
+
+
 
 SCRIPTS_DIR = os.path.dirname(os.path.realpath(__file__))
+
+logs_dir = os.path.join(SCRIPTS_DIR,"logs")
+
+if not os.path.exists(logs_dir):
+    os.makedirs(logs_dir)
+
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
+format = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+fh = logging.FileHandler(os.path.join(logs_dir,'awr.log'))
+fh.setLevel(logging.INFO)
+fh.setFormatter(format)
+logger.addHandler(fh)
 
 schemalist = os.path.join(SCRIPTS_DIR, "input.csv")
 o_dir_base = SCRIPTS_DIR
@@ -46,7 +62,7 @@ s3inputbucket = os.environ.get("INPUT_BUCKET")
 s3 = boto3.resource("s3")
 sm_client = boto3.client("secretsmanager", region_name=DMAF_REGION)
 
-
+logger.info("Fetching credentials from secrets manager")
 response = sm_client.get_secret_value(SecretId=DMAF_SECRETS_NAME)
 
 # print (response)
@@ -55,13 +71,13 @@ SecretString = json.loads(response.get("SecretString"))
 oracleCredentials = SecretString.get("ORACLE")
 msssqlCredentials = SecretString.get("MSSQL")
 
-
 dblist = open(schemalist, "r")
 outbucket = os.environ["OUTPUT_BUCKET"]  # data[3]
 print(outbucket)
 if os.path.isdir("perf_reports") == False:
     os.system("mkdir " + o_dir_rpt)
     os.system("chmod 777 " + o_dir_rpt + "/")
+logger.info("Reading the input csv file : {0}".format(schemalist))
 with open(schemalist,"r") as f:
     reader = csv.DictReader(f)
     for row in reader:
@@ -76,9 +92,12 @@ with open(schemalist,"r") as f:
             # print(s_server+" "+s_port+" " +s_sid+" "+schema+" "+s_vendor)
         except Exception as e:
             print(str(e))
+            logger.error("Failed to fetch data")
+            logger.error(str(e))
 
         if s_vendor == "ORACLE" and os.path.exists(ORACLE_SQL):
             dsn = cx_Oracle.makedsn(s_server, s_port, service_name=s_sid)
+            logger.info("Oracle : Connecting to DB {0}@{1}".format(s_sid,s_server))
             conn = cx_Oracle.connect(
                 user=oracleCredentials["username"],
                 password=oracleCredentials["password"],
@@ -86,7 +105,10 @@ with open(schemalist,"r") as f:
             )
             f = open(ORACLE_SQL, "r")
             sql = f.read()
-            fname = s_server + "_" + s_sid.rstrip() + "_" + "oracle_performance" + ".csv"
+            
+            #fname = s_server + "_" + s_sid.rstrip() + "_" + "oracle_performance" + ".csv"
+            fname = s_server + "_" + s_port + "_" + s_sid.rstrip() + "_" + "oracle_performance" + ".csv"
+            
             csv_file_dest = os.path.join(o_dir_rpt, fname)
             processed = True
             with open(csv_file_dest, "w") as outputFile:
@@ -104,7 +126,7 @@ with open(schemalist,"r") as f:
                     header2 = "collected"
                     curs.execute(sql)
                     records = curs.fetchall()
-                    print (records)
+                    logger.info (records)
                     cols = []
                     rowval = []
                     for col in curs.description:
@@ -115,7 +137,8 @@ with open(schemalist,"r") as f:
                     for row_data in records:  # add table rows
                         rowval = list(row_data)
                         # print(rowval)
-                        rowval.insert(0, s_server.rstrip())
+                        #rowval.insert(0, s_server.rstrip())
+                        rowval.insert(0, s_server.rstrip() + ':' + s_port.rstrip())
                         rowval.append(int(round(time.time(), 0)))
                         output.writerow(rowval)
                     outputFile.close()
@@ -123,9 +146,11 @@ with open(schemalist,"r") as f:
                 except Exception as e:
                     processed = False
                     print(str(e))
+                    logger.error("Failed to fetch data")
+                    logger.error(str(e))
             f.close()
             if processed:
-                print ("uploading perf reports msqlperf/{0}".format(fname))
+                logger.info ("uploading perf reports msqlperf/{0}".format(fname))
                 s3.meta.client.upload_file(csv_file_dest, outbucket, "oraperf/" + fname)
         if s_vendor == "MSSQL":
             schemas = schema.split(";")
@@ -144,6 +169,7 @@ with open(schemalist,"r") as f:
                     + ";DATABASE="
                     + dbname.strip()
                 )
+                logger.info("MSSQL : Connecting to DB {0}@{1}".format(s_sid,dbname.strip()))
                 # print (constr)
                 conn = pyodbc.connect(constr)
                 # fw=open('/home/ec2-user/mpi4py-3.0.3/get_mssql_performance',"w")
@@ -151,7 +177,8 @@ with open(schemalist,"r") as f:
                 f = open(MSSQL_SQL, "r")
                 sql = f.read()
                 # print(sql)
-                fname = s_server + "_" + dbname + "_" + "mssql_performance" + ".csv"
+                #fname = s_server + "_" + dbname + "_" + "mssql_performance" + ".csv"
+                fname = s_server + "_" + s_port + "_" + dbname + "_" + "mssql_performance" + ".csv"
                 csv_file_dest = os.path.join(o_dir_rpt, fname)
                 processed = True
                 with open(csv_file_dest, "w") as outputFile:
@@ -167,6 +194,7 @@ with open(schemalist,"r") as f:
                     try:
                         curs.execute(sql)
                         records = curs.fetchall()
+                        logger.info(records)
                         # print (records)
                         cols = []
                         rowval = []
@@ -179,7 +207,8 @@ with open(schemalist,"r") as f:
                         output.writerow(cols)
                         for row_data in records:  # add table rows
                             rowval = list(row_data)
-                            rowval.insert(0, s_server.rstrip())
+                            #rowval.insert(0, s_server.rstrip())
+                            rowval.insert(0, s_server.rstrip() + ':' + s_port.rstrip())
                             rowval.append(int(round(time.time(), 0)))
                             output.writerow(rowval)
                         # print("no rows")
@@ -188,8 +217,10 @@ with open(schemalist,"r") as f:
                     except Exception as e:
                         processed = False
                         print(str(e))
+                        logger.error("Failed to fetch data")
+                        logger.error(str(e))
                 f.close()
                 if processed:
-                    print ("uploading perf reports msqlperf/{0}".format(fname))
+                    logger.info ("uploading perf reports msqlperf/{0}".format(fname))
                     s3.meta.client.upload_file(csv_file_dest, outbucket, "msqlperf/" + fname)
 print("upload done")
