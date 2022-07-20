@@ -42,18 +42,33 @@ response = sm_client.get_secret_value(
 # print (response)
 drivers_path = os.path.join(SCRIPTS_DIR,"drivers")
 sql_drivers = glob.glob(drivers_path + "/mssql*jre11*.jar")
-print (sql_drivers)
-sql_jar_path = sql_drivers[0]
+sql_jar_path = ""
+if len(sql_drivers) > 0:
+    print (sql_drivers)
+    sql_jar_path = sql_drivers[0]
+else:
+    print ("No MSSQL Drivers found.")
 oracle_drivers = glob.glob(drivers_path + "/ojdbc8.jar")
-print (oracle_drivers)
-# exit(0)
-ora_jar_path = oracle_drivers[0]
+ora_jar_path = ""
+if len(oracle_drivers) > 0:
+    print (oracle_drivers)
+    ora_jar_path = oracle_drivers[0]
+else:
+    print ("No Oracle Drivers found.")
 db2_drivers = glob.glob(drivers_path + "/db2jcc4.jar")
-print (db2_drivers)
-db2_jar_path = db2_drivers[0]
+db2_jar_path = ""
+if len(db2_drivers) > 0:
+    print (db2_drivers)
+    db2_jar_path = db2_drivers[0]
+else:
+    print ("No DB2 Drivers found.")
 sybase_drivers = glob.glob(drivers_path + "/jconn4.jar")
-print (sybase_drivers)
-sybase_jar_path = sybase_drivers[0]
+sybase_jar_path = ""
+if len(sybase_drivers):
+    print (sybase_drivers)
+    sybase_jar_path = sybase_drivers[0]
+else:
+    print ("No SYBASE Drivers found.")
 
 
 current_ram_usage = psutil.virtual_memory().percent

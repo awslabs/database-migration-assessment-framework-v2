@@ -26,6 +26,7 @@ import io
 import os
 from urllib.parse import unquote
 import logging
+import re
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
@@ -192,6 +193,8 @@ def getDatabaseName(row, inbucket, dirname):
     pages = newPaginator.paginate(Bucket=inbucket, Prefix=newDir)
     database = ""
     schema = ""
+    port = ""
+    host=""
     logger.info(pages)
     for page in pages:
         logger.info(page)
@@ -211,38 +214,71 @@ def getDatabaseName(row, inbucket, dirname):
                             sub2 = sub1[2].split("/")
                             sub3 = sub1[1].split("@")
                             sub4 = sub3[0].split(".")
-                            host = sub3[1]
+                            
                             if len(sub2) > 1:
                                 database = sub2[1]
+                                port = sub2[0]
                             else:
                                 database = sub1[-1]
+                                port = sub1[2]
+                                
+
+                            if len(port) > 1:
+                                host = sub3[1] + ":" + port
+                            else:
+                                host = sub3[1]    
+                            
                             schema = sub4[0]
                             if "Oracle" in rows[i + 1][0]:
                                 sourcedb = "ORACLE"
                             else:
                                 sourcedb = "DB2"
                             banner = rows[i + 1][0]
-                            return database, schema
-                            # print(host,database,schema,sourcedb,targetdb)
+                            return database, schema, host
+                            
                         if "Source database:" in line[0] and ("SQL" in rows[i + 1][0] or "Adaptive" in rows[i + 1][0]):
-                            l = line[0]
+                            
+                            l= re.sub('"', "", line[0])
                             sub1 = l.split("\\")
-                            sub2 = sub1[0].split(":")
-                            sub3 = sub2[1].split("@")
+                            
+                            if(len(sub1)) > 1:
+                                
+                                for ind in sub1:
+                                    
+                                    if (re.search(":", ind) and ("Source database:" in ind)):
+                                        sub2 = l.split(":")
+                                        sub3 = sub2[1].split("@")
+                                        port=''
+                                        
+                                    if (re.search(":", ind) and ("Source database:" not in ind)):
+                                        sub2 = ind.split(":")
+                                        port = re.sub('"', "", sub2[1])
+                                        
+                            else:
+                                sub2 = sub1[0].split(":")
+                                sub3 = sub2[1].split("@")
+                                port = sub2[2]
+                                
+                            if len(port) > 1:
+                                host = sub3[1] + ":" + port
+                            else:
+                                host = sub3[1]
+                            
                             sub4 = sub3[0].split(".")
-                            host = sub3[1]
+                                                        
                             database = sub4[0]
                             schema = sub4[1]
+                            
                             if "SQL" in rows[i + 1][0]:
                                 sourcedb = "MSSQL"
                             else:
                                 sourcedb = "SYBASE"
                             banner = rows[i + 1][0]
-                            return database, schema
-                            # print(host,database,schema,sourcedb,target)
-    return database, schema
-
-
+                            
+                            return database, schema, host
+                            print(host,database,schema,sourcedb,target)
+    return database, schema, host
+    
 def modifyAggregatedFile(data, tmp_file, Bucket, dirname,customerName,BatchName):
     headers = ["Server Ip", "Name", "Description", "Schema name"]
     ConversionHeaders = [
@@ -264,7 +300,8 @@ def modifyAggregatedFile(data, tmp_file, Bucket, dirname,customerName,BatchName)
             if targetName not in Targets:
                 Targets.append(targetName)
     for row in csvReader:
-        database, tmpschema = getDatabaseName(row, Bucket, dirname)
+        #database, tmpschema = getDatabaseName(row, Bucket, dirname)
+        database, tmpschema, tmphost = getDatabaseName(row, Bucket, dirname)
         schema = row["Schema name"].split(".")[-1]
         for target in Targets:
             checkTargetHeader = '{0} for "{1}"'.format(ConversionHeaders[0], target)
@@ -278,7 +315,12 @@ def modifyAggregatedFile(data, tmp_file, Bucket, dirname,customerName,BatchName)
                 newRow["BatchName"] = BatchName
 
                 for key in headers:
-                    newRow[key] = row[key]
+                    
+                    if key == "Server Ip":
+                        newRow[key] = tmphost
+                    else:
+                        newRow[key] = row[key]
+                                        
                 for header in ConversionHeaders:
                     conversionHeader = '{0} for "{1}"'.format(header, target)
                     newRow[header] = row[conversionHeader]

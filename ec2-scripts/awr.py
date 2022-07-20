@@ -71,7 +71,6 @@ SecretString = json.loads(response.get("SecretString"))
 oracleCredentials = SecretString.get("ORACLE")
 msssqlCredentials = SecretString.get("MSSQL")
 
-
 dblist = open(schemalist, "r")
 outbucket = os.environ["OUTPUT_BUCKET"]  # data[3]
 print(outbucket)
@@ -106,7 +105,10 @@ with open(schemalist,"r") as f:
             )
             f = open(ORACLE_SQL, "r")
             sql = f.read()
-            fname = s_server + "_" + s_sid.rstrip() + "_" + "oracle_performance" + ".csv"
+            
+            #fname = s_server + "_" + s_sid.rstrip() + "_" + "oracle_performance" + ".csv"
+            fname = s_server + "_" + s_port + "_" + s_sid.rstrip() + "_" + "oracle_performance" + ".csv"
+            
             csv_file_dest = os.path.join(o_dir_rpt, fname)
             processed = True
             with open(csv_file_dest, "w") as outputFile:
@@ -135,7 +137,8 @@ with open(schemalist,"r") as f:
                     for row_data in records:  # add table rows
                         rowval = list(row_data)
                         # print(rowval)
-                        rowval.insert(0, s_server.rstrip())
+                        #rowval.insert(0, s_server.rstrip())
+                        rowval.insert(0, s_server.rstrip() + ':' + s_port.rstrip())
                         rowval.append(int(round(time.time(), 0)))
                         output.writerow(rowval)
                     outputFile.close()
@@ -174,7 +177,8 @@ with open(schemalist,"r") as f:
                 f = open(MSSQL_SQL, "r")
                 sql = f.read()
                 # print(sql)
-                fname = s_server + "_" + dbname + "_" + "mssql_performance" + ".csv"
+                #fname = s_server + "_" + dbname + "_" + "mssql_performance" + ".csv"
+                fname = s_server + "_" + s_port + "_" + dbname + "_" + "mssql_performance" + ".csv"
                 csv_file_dest = os.path.join(o_dir_rpt, fname)
                 processed = True
                 with open(csv_file_dest, "w") as outputFile:
@@ -203,7 +207,8 @@ with open(schemalist,"r") as f:
                         output.writerow(cols)
                         for row_data in records:  # add table rows
                             rowval = list(row_data)
-                            rowval.insert(0, s_server.rstrip())
+                            #rowval.insert(0, s_server.rstrip())
+                            rowval.insert(0, s_server.rstrip() + ':' + s_port.rstrip())
                             rowval.append(int(round(time.time(), 0)))
                             output.writerow(rowval)
                         # print("no rows")

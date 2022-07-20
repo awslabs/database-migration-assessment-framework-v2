@@ -20,6 +20,7 @@ import json
 import boto3
 import csv
 import os
+import re
 
 # environment variables
 inbucket = os.environ["inbucket"]
@@ -31,7 +32,9 @@ region = os.environ["region"]
 def modifycsv(files):
     client = boto3.client("s3")
     s3_resource = boto3.resource("s3")
-    host, database, schema, sourcedb, targetdb = "", "", "", "", ""
+    #host, database, schema, sourcedb, targetdb = "", "", "", "", ""
+    host, database, schema, sourcedb, targetdb, port = "", "", "", "", "",""
+    
     headers = ["Host", "Database", "Sourcedb", "Targetdb"]
     # inbucket='sctmultiassessortest'
     # outbucket='sctmultiassessortest2'
@@ -58,11 +61,21 @@ def modifycsv(files):
                     sub2 = sub1[2].split("/")
                     sub3 = sub1[1].split("@")
                     sub4 = sub3[0].split(".")
-                    host = sub3[1]
+                    
                     if len(sub2) > 1:
                         database = sub2[1]
+                        port = sub2[0]
                     else:
                         database = sub1[-1]
+                        port = sub1[2]
+                        
+
+                    #host = sub3[1]
+                    if len(port) > 1:
+                        host = sub3[1] + ":" + port
+                    else:
+                        host = sub3[1]    
+                                            
                     schema = sub4[0]
                     if "Oracle" in rows[i + 1][0]:
                         sourcedb = "ORACLE"
@@ -71,12 +84,38 @@ def modifycsv(files):
                     banner = rows[i + 1][0]
                     # print(host,database,schema,sourcedb,targetdb)
                 if "Source database:" in line[0] and ("SQL" in rows[i + 1][0] or "Adaptive" in rows[i + 1][0]):
-                    l = line[0]
+                    
+                    l= re.sub('"', "", line[0])
                     sub1 = l.split("\\")
-                    sub2 = sub1[0].split(":")
-                    sub3 = sub2[1].split("@")
+                    
+                    if(len(sub1)) > 1:
+                        
+                        for ind in sub1:
+                            
+                            if (re.search(":", ind) and ("Source database:" in ind)):
+                                sub2 = l.split(":")
+                                sub3 = sub2[1].split("@")
+                                port=''
+                                
+                            if (re.search(":", ind) and ("Source database:" not in ind)):
+                                sub2 = ind.split(":")
+                                port = re.sub('"', "", sub2[1])
+                                
+                    else:
+                        sub2 = sub1[0].split(":")
+                        sub3 = sub2[1].split("@")
+                        port = sub2[2]
+                    
                     sub4 = sub3[0].split(".")
-                    host = sub3[1]
+                    
+                    database = sub4[0]
+                    schema = sub4[1]
+                            
+                    if len(port) > 1:
+                        host = sub3[1] + ":" + port
+                    else:
+                        host = sub3[1]
+                    
                     database = sub4[0]
                     schema = sub4[1]
                     if "SQL" in rows[i + 1][0]:

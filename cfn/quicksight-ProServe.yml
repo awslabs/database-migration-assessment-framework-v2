@@ -21,9 +21,9 @@ Metadata:
         Parameters:
           - QSDataSetImportModeVWDatamart
           - QSDataSetImportModeVWUrldocumentation
-          - QSUserName
-          - QSUserRegion
-          - QSAnalysisName
+          - QSPrincipalType
+          - QSPrincipalName
+          - QSPrincipalRegion
           - QSTemplateName
           - QSSourceTemplateArn
           - QSDashboardName
@@ -79,11 +79,6 @@ Parameters:
     AllowedValues:
       - SPICE
       - DIRECT_QUERY
-  QSAnalysisName:
-    Type: String
-    Default: dmaf_v2_1
-    Description: The quicksight analysis name, used for locating outputs from the
-                 prerequisite stacks
   QSTemplateName:
     Type: String
     Default: dmaf_v2_1
@@ -96,16 +91,22 @@ Parameters:
                  prerequisite stacks
   QSSourceTemplateArn:
     Type: String
-    Default: arn:aws:quicksight:us-east-2:254711704212:template/dmaf-test-template-dmaf_v2-254711704212
+    Default: arn:aws:quicksight:ap-south-1:254711704212:template/dmaf-dev-template-dmaf_v2_1-254711704212
     Description: The quicksight source template arn, used for locating outputs from the
                  prerequisite stacks
-  QSUserName:
+  QSPrincipalType:
     Type: String
-    Default: dmaf-cf-admin
+    Default: user
+    AllowedValues:
+      - user
+      - group
+    Description: Choose QS user or QS group to be used
+  QSPrincipalName:
+    Type: String
+    Default: quicksight-user-or-group-here
     Description: >-
-      The quicksight username, used for locating outputs from the prerequisite
-      stacks
-  QSUserRegion:
+      The quicksight name of user or group
+  QSPrincipalRegion:
     Type: String
     Default: us-east-1
     Description: >-
@@ -138,7 +139,7 @@ Resources:
             - quicksight:UpdateDataSource
             - quicksight:DeleteDataSource
           Principal: !Sub 
-            - 'arn:aws:quicksight:${QSUserRegion}:${Account}:user/default/${QSUserName}'
+            - 'arn:aws:quicksight:${QSPrincipalRegion}:${Account}:${QSPrincipalType}/default/${QSPrincipalName}'
             - Account: !Ref 'AWS::AccountId'
   QSDataSetVWDatamart:
     Type: 'AWS::QuickSight::DataSet'
@@ -238,7 +239,7 @@ Resources:
             - 'quicksight:CancelIngestion'
           Principal: !Sub 
             - >-
-              arn:aws:quicksight:${QSUserRegion}:${Account}:user/default/${QSUserName}
+              arn:aws:quicksight:${QSPrincipalRegion}:${Account}:${QSPrincipalType}/default/${QSPrincipalName}
             - Account: !Ref 'AWS::AccountId'
       Tags:
         - Key: Name
@@ -283,7 +284,7 @@ Resources:
             - 'quicksight:CancelIngestion'
           Principal: !Sub 
             - >-
-              arn:aws:quicksight:${QSUserRegion}:${Account}:user/default/${QSUserName}
+              arn:aws:quicksight:${QSPrincipalRegion}:${Account}:${QSPrincipalType}/default/${QSPrincipalName}
             - Account: !Ref 'AWS::AccountId'
       Tags:
         - Key: Name
@@ -305,45 +306,9 @@ Resources:
         - Actions:
             - quicksight:DescribeTemplate
           Principal: !Sub 
-            - 'arn:aws:quicksight:${QSUserRegion}:${Account}:user/default/${QSUserName}'
+            - 'arn:aws:quicksight:${QSPrincipalRegion}:${Account}:${QSPrincipalType}/default/${QSPrincipalName}'
             - Account: !Ref 'AWS::AccountId'
       VersionDescription: Initial version - Copied over from AWS account.
-      Tags:
-        - Key: Name
-          Value: !Ref Name
-        - Key: Environment
-          Value: !Ref EnvironmentName                          
-        - Key: !Ref ProjectTagKey
-          Value: !Ref ProjectTagValue 
-  QSAnalysis:
-    Type: AWS::QuickSight::Analysis
-    DependsOn:
-    - QSDataSetVWDatamart
-    - QSDataSetVWUrldocumentation
-    Properties:
-      AnalysisId: !Sub '${Name}-${EnvironmentName}-analysis-${QSAnalysisName}-${AWS::AccountId}'
-      Name: !Sub '${Name}-${EnvironmentName}-analysis-${QSAnalysisName}-${AWS::AccountId}'
-      AwsAccountId: !Ref AWS::AccountId
-      SourceEntity:
-        SourceTemplate:
-          Arn: !GetAtt QSTemplate.Arn
-          DataSetReferences:
-            - DataSetPlaceholder: vw_datamart
-              DataSetArn: !GetAtt QSDataSetVWDatamart.Arn
-            - DataSetPlaceholder: vw_urldocumentation
-              DataSetArn: !GetAtt QSDataSetVWUrldocumentation.Arn
-      Permissions:
-        - Actions:
-            - quicksight:RestoreAnalysis
-            - quicksight:UpdateAnalysisPermissions
-            - quicksight:DeleteAnalysis
-            - quicksight:DescribeAnalysisPermissions
-            - quicksight:QueryAnalysis
-            - quicksight:DescribeAnalysis
-            - quicksight:UpdateAnalysis
-          Principal: !Sub 
-          - 'arn:aws:quicksight:${QSUserRegion}:${Account}:user/default/${QSUserName}'
-          - Account: !Ref 'AWS::AccountId'              
       Tags:
         - Key: Name
           Value: !Ref Name
@@ -379,7 +344,7 @@ Resources:
             - quicksight:DescribeDashboardPermissions
             - quicksight:UpdateDashboardPublishedVersion
           Principal: !Sub 
-          - 'arn:aws:quicksight:${QSUserRegion}:${Account}:user/default/${QSUserName}'
+          - 'arn:aws:quicksight:${QSPrincipalRegion}:${Account}:${QSPrincipalType}/default/${QSPrincipalName}'
           - Account: !Ref 'AWS::AccountId'    
       Tags:
         - Key: Name
@@ -409,10 +374,6 @@ Outputs:
     Value: !GetAtt "QSTemplate.Arn"
     Export:
       Name: !Sub "${EnvironmentName}:${Name}:QSTemplate"
-  QSAnalysis:
-    Value: !GetAtt "QSAnalysis.Arn"
-    Export:
-      Name: !Sub "${EnvironmentName}:${Name}:QSAnalysis"
   QSDashboard:
     Value: !GetAtt "QSDashboard.Arn"
     Export:

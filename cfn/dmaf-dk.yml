@@ -10,14 +10,10 @@ Parameters:
     AllowedValues:
       - Automated
       - Manual
+    Default: Automated
   sctinputbucket:
     Type: String
     Default: test-bucket-name
-  SourcePublicIpaddress:
-    Type: String
-    Description: >-
-      This is your public Ipv4 address used to access S3 objects (Eg:
-      88.44.22.11)
   outputbucket:
     Type: String
     Default: outputtest-bucket-name
@@ -47,8 +43,7 @@ Parameters:
   #   Default: ami-06041b717a01b029d
   VPC:
     Description: vpc
-    Type: 'List<AWS::EC2::VPC::Id>'
-    Default: VPCID
+    Type: 'AWS::EC2::VPC::Id'
   InstanceType:
     Description: The instance family and type for the EC2 instance
     Type: String
@@ -64,19 +59,15 @@ Parameters:
   PSubnet1:
     Description: Enter your first subnet id
     Type: 'AWS::EC2::Subnet::Id'
-    Default: SUBNETID1
   PSubnet2:
     Description: Enter your second subnet id
     Type: 'AWS::EC2::Subnet::Id'
-    Default: SUBNETID2
   SecurityGroups:
     Description: The security group
     Type: 'List<AWS::EC2::SecurityGroup::Id>'
-    Default: SGID
   KeyName:
     Description: Key Pair name
     Type: 'AWS::EC2::KeyPair::KeyName'
-    Default: KEY
   EC2alarmsnsTopicName:
     Type: String
     Description: SNS Topic Name
@@ -86,17 +77,79 @@ Parameters:
     Description: Email-ID for EC2 alert notifications. A subscription Confirmation email will be sent.
     AllowedPattern: '[^\s@]+@[^\s@]+\.[^\s@]+'
     ConstraintDescription: You should enter a valid email.
+    Default: dmaf@email.com
 Conditions:
   isAutomated: !Equals 
     - !Ref Deploymenttype
     - Automated
+Metadata: 
+  AWS::CloudFormation::Interface: 
+    ParameterGroups: 
+      - 
+        Label: 
+          default: "Required Parameters"
+        Parameters: 
+          - TOOL
+          - dmafinstallbucket
+          - sctinputbucket
+          - outputbucket
+          - athenadatabase
+          - Deploymenttype
+      - 
+        Label: 
+          default: "Parameters for Automated Deployment Type"
+        Parameters: 
+          - dmafSecretsManagerName
+          - ImageId
+          - VPC
+          - InstanceType
+          - AutoScalingSize
+          - PSubnet1
+          - PSubnet2
+          - SecurityGroups
+          - KeyName
+          - EC2alarmsnsTopicName
+          - EC2alarmsnssubscriptionemail
+    ParameterLabels: 
+      VPC: 
+        default: "Which VPC should this be deployed to?"
+      dmafinstallbucket:
+        default: "DMAF Source Code Bucket"
+      sctinputbucket:
+        default: "Bucket to upload SCT Reports"
+      outputbucket:
+        default: "Bucket to upload Processed SCT Reports"
+      athenadatabase:
+        default: "Athena Database Name"
+      Deploymenttype:
+        default: "Deployment Type"
+      dmafSecretsManagerName:
+        default: "Secret Name to Store DB Credentials"
+      ImageId:
+        default: "AMI ID"
+      InstanceType:
+        default: "EC2 Instance Type"
+      AutoScalingSize:
+        default: "Desired Count for Auto Scalling Group"
+      PSubnet1:
+        default: "Private Subnet 1"
+      PSubnet2:
+        default: "Private Subnet 2"
+      SecurityGroups:
+        default: "Security Groups"
+      KeyName:
+        default: "EC2 KeyPair Name"
+      EC2alarmsnsTopicName:
+        default: "SNS Topic for EC2 alarm"
+      EC2alarmsnssubscriptionemail:
+        default: "Email to send SNS Notifcations for EC2 alarm"      
 Resources:
   DMAFSecret:
     Type: 'AWS::SecretsManager::Secret'
     Properties:
       Name: !Ref dmafSecretsManagerName
       Description: This secret has a username and password in SecretString to use with dmaf.
-      SecretString: '{"ORACLE":{"username":"MasterUsername","password":"secret-password"},"MSSQL":{"username":"MasterUsername","password":"secret-password"},"DB2":{"username":"MasterUsername","password":"secret-password"},"SYBASE":{"username":"MasterUsername","password":"secret-password"}}'
+      SecretString: '{"ORACLE":{"username":"DMAFUsername","password":"secret-password"},"MSSQL":{"username":"DMAFUsername","password":"secret-password"},"DB2":{"username":"DMAFUsername","password":"secret-password"},"SYBASE":{"username":"DMAFUsername","password":"secret-password"}}'
       Tags:
         - Key: TOOL
           Value: !Ref TOOL
@@ -233,7 +286,7 @@ Resources:
         - Key: TOOL
           Value: !Ref TOOL
       DelaySeconds: 0
-      QueueName: csvfilequeue
+      QueueName: !Sub "csvfilequeue-${AWS::StackName}"
       ReceiveMessageWaitTimeSeconds: 2
       VisibilityTimeout: 900
   csvSQSPolicy:
@@ -271,7 +324,7 @@ Resources:
       Tags:
         - Key: TOOL
           Value: !Ref TOOL
-      TopicName: zipfilenotification
+      TopicName: !Sub "zipfilenotification-${AWS::StackName}"
   snstopicpolicy:
     Type: 'AWS::SNS::TopicPolicy'
     Properties:
@@ -322,24 +375,6 @@ Resources:
         - Key: TOOL
           Value: !Ref TOOL
       BucketName: !Sub '${outputbucket}'
-  s3inputbucketpolicy:
-    Type: 'AWS::S3::BucketPolicy'
-    Properties:
-
-      Bucket: !Ref s3inputbucket
-      PolicyDocument:
-        Version: 2012-10-17
-        Id: s3inputpolicyid1
-        Statement:
-          - Sid: s3accessipallow
-            Effect: Allow
-            Principal:
-              AWS: !Sub 'arn:aws:iam::${AWS::AccountId}:root'
-            Action: 's3:GetObject'
-            Resource: !Sub 'arn:aws:s3:::${sctinputbucket}/*.pdf'
-            Condition:
-              IpAddress:
-                'aws:SourceIp': !Sub '${SourcePublicIpaddress}'
   modifycsvfn:
     Type: 'AWS::Lambda::Function'
     Properties:
@@ -356,10 +391,9 @@ Resources:
           csvqueue: !Ref csvqueue
           snstopictounsubscribe: !Ref snstopic
           outbucket: !Ref s3outputbucket
-      FunctionName: modifycsvfiles
+      FunctionName: !Sub "modifycsvfiles-${AWS::StackName}"
       Handler: lambda_function.lambda_handler
       MemorySize: 512
-      ReservedConcurrentExecutions: 1
       Role: !GetAtt 
         - LambdaExecutionRole
         - Arn
@@ -448,10 +482,9 @@ Resources:
           outbucket: !Ref s3outputbucket
           cweventname: !Ref sqscheckevent
           region: !Ref 'AWS::Region'
-      FunctionName: asyncmodifycsvfiles
+      FunctionName: !Sub "asyncmodifycsvfiles-${AWS::StackName}"
       Handler: lambda_function.lambda_handler
       MemorySize: 1024
-      ReservedConcurrentExecutions: 400
       Role: !GetAtt 
         - LambdaExecutionRole
         - Arn
@@ -490,10 +523,9 @@ Resources:
           csvqueue: !Ref csvqueue
           sqscheckevent: !Ref sqscheckevent
           timecalculationfn: !Ref timecalculationfn
-      FunctionName: sqspoll
+      FunctionName: !Sub "sqspoll-${AWS::StackName}"
       Handler: lambda_function.lambda_handler
       MemorySize: 512
-      ReservedConcurrentExecutions: 1
       Role: !GetAtt 
         - LambdaExecutionRole
         - Arn
@@ -519,10 +551,9 @@ Resources:
             - Arn
           timecalculationfn: timecalculation
           athenadb: !Ref athenadb
-      FunctionName: timecalculation
+      FunctionName: !Sub "timecalculation-${AWS::StackName}" 
       Handler: lambda_function.lambda_handler
       MemorySize: 512
-      ReservedConcurrentExecutions: 100
       Role: !GetAtt 
         - LambdaExecutionRole
         - Arn
@@ -550,10 +581,9 @@ Resources:
           outputbucket: !Ref s3outputbucket
           sctinputbucket: !Ref sctinputbucket
           athenadb: !Ref athenadb
-      FunctionName: athenacreation
+      FunctionName: !Sub "athenacreation-${AWS::StackName}"
       Handler: lambda_function.lambda_handler
       MemorySize: 512
-      ReservedConcurrentExecutions: 3
       Role: !GetAtt 
         - LambdaExecutionRole
         - Arn

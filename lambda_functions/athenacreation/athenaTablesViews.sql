@@ -39,8 +39,11 @@ CREATE EXTERNAL TABLE `aggtbl`(
   `customer` string,
   `batch` string
   )
-ROW FORMAT DELIMITED 
-  FIELDS TERMINATED BY ',' 
+ROW FORMAT SERDE 
+  'org.apache.hadoop.hive.serde2.OpenCSVSerde' 
+WITH SERDEPROPERTIES ( 
+  'quoteChar'='\"', 
+  'separatorChar'=',') 
 STORED AS INPUTFORMAT 
   'org.apache.hadoop.mapred.TextInputFormat' 
 OUTPUTFORMAT 
@@ -527,20 +530,20 @@ from msqlperfdata ) a  , instancelookup i
 
 
 
-CREATE OR REPLACE VIEW vw_aggregated AS 
-SELECT
-  "upper"("substr"(target, ("strpos"(target, 'for') + 4))) target
-, "upper"(hostname) hostname
-, "upper"(databasename) databasename
-, "upper"(schemaname) schemaname
-, code_obj_conv_pcs
-, storage_obj_conv_pcs
-, syntax_obj_conv_pcs
-, schema_complexity
-, customer
-, batch
-FROM
-  aggtbl;
+CREATE OR REPLACE VIEW vw_aggregated AS
+SELECT  (CASE WHEN ("split"("upper"(target),' ')[2] = 'RDS') THEN (CASE WHEN ("split"("upper"(target),' ')[4] = 'MICROSOFT') THEN 'MSSQL' ELSE "split"("upper"(target),' ')[4] END) WHEN ("split"("upper"(target),' ')[2] = 'AURORA') THEN "concat"("concat"("split"("upper"(target),' ')[2],'_'),"substr"("split"("upper"(target),' ')[3],2)) ELSE target END) target
+       ,"upper"(hostname) hostname
+       ,"upper"(databasename) databasename
+       ,"upper"(schemaname) schemaname
+       ,code_obj_conv_pcs
+       ,storage_obj_conv_pcs
+       ,syntax_obj_conv_pcs
+       ,schema_complexity
+       ,customer
+       ,batch
+FROM aggtbl
+WHERE ("length"("trim"(storage_obj_conv_pcs)) > 0);
+
 
 
 CREATE OR REPLACE VIEW vw_sctsinglecsv AS 
