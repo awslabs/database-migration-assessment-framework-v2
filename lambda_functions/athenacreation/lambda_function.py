@@ -108,7 +108,6 @@ def copyCSVFiles():
     )
     client.upload_file("wqf_2nd_values.csv", outbucketname, "wqf2/wqf_2nd_values.csv")
     client.upload_file("url.csv", outbucketname, "documenturls/url.csv")
-    client.upload_file("oracle_internal.csv", outbucketname, "oracleinternal/oracle_internal.csv")
 
 
 def lambda_handler(event, context):

@@ -26,28 +26,9 @@ import io
 import os
 from urllib.parse import unquote
 import logging
-import re
-
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
-
-AGGREGATED_SUMMARY_HEADER = [
-    "Timestamp",
-    "database",
-    "schema",
-    "Server Ip",
-    "Name",
-    "Description",
-    "Schema name",
-    "Target",
-    "Code object conversion %",
-    "Storage object conversion %",
-    "Syntax Elements conversion %",
-    "Conversion Complexity",
-    "customerName",
-    "BatchName",
-]
 
 
 def lambda_handler(event, context):
@@ -122,13 +103,13 @@ def lambda_handler(event, context):
                             Body=zipf.read(file),
                         )
                         putObjects.append(putFile)
-                    #elif "rds" in fileName:
-                    #    putFile = client.put_object(
-                    #        Bucket=inbucket,
-                    #        Key="Inputfile/rdsinfo/" + fileName,
-                    #        Body=zipf.read(file),
-                    #    )
-                    #    putObjects.append(putFile)
+                    elif "rds" in fileName:
+                        putFile = client.put_object(
+                            Bucket=inbucket,
+                            Key="Inputfile/rdsinfo/" + fileName,
+                            Body=zipf.read(file),
+                        )
+                        putObjects.append(putFile)
                     elif "coderanges" in fileName:
                         putFile = client.put_object(
                             Bucket=inbucket,
@@ -136,13 +117,13 @@ def lambda_handler(event, context):
                             Body=zipf.read(file),
                         )
                         putObjects.append(putFile)
-                    # elif "sct" in fileName:
-                    #     putFile = client.put_object(
-                    #         Bucket=inbucket,
-                    #         Key="Inputfile/sctactioncodes/" + fileName,
-                    #         Body=zipf.read(file),
-                    #     )
-                    #     putObjects.append(putFile)
+                    elif "sct" in fileName:
+                        putFile = client.put_object(
+                            Bucket=inbucket,
+                            Key="Inputfile/sctactioncodes/" + fileName,
+                            Body=zipf.read(file),
+                        )
+                        putObjects.append(putFile)
                     else:
                         putFile = client.put_object(
                             Bucket=inbucket,
@@ -200,8 +181,68 @@ def lambda_handler(event, context):
         response = sqs_client.send_message(QueueUrl=csvqueueurl, MessageBody=p)
 
 
+def getDatabaseName(row, inbucket, dirname):
+    logger.info("_______________________________")
+    logger.info("{0} {1} {2}".format(str(row), inbucket, dirname))
+    client = boto3.client("s3")
+    s3_resource = boto3.resource("s3")
+    newPaginator = client.get_paginator("list_objects_v2")
+    newDir = os.path.join(dirname, row["Name"],row["Schema name"])
+    logger.info(newDir)
+    pages = newPaginator.paginate(Bucket=inbucket, Prefix=newDir)
+    database = ""
+    schema = ""
+    logger.info(pages)
+    for page in pages:
+        logger.info(page)
+        logger.info("_______________________________")
+        for obj in page["Contents"]:
+            if "Csv-report_Summary.csv" in obj["Key"]:
+                s3_object1 = s3_resource.Object(inbucket, obj["Key"])
+                data1 = s3_object1.get()["Body"].read().decode("utf-8").splitlines()
+                lines = csv.reader(data1)
+                rows = list(lines)
+                for i, line in enumerate(rows):
+                    if len(line) != 0:
+                        if "Source database:" in line[0] and ("Oracle" in rows[i + 1][0] or  "DB2" in rows[i + 1][0]):
+                            # print(rows[i+1])
+                            l = line[0]
+                            sub1 = l.split(":")
+                            sub2 = sub1[2].split("/")
+                            sub3 = sub1[1].split("@")
+                            sub4 = sub3[0].split(".")
+                            host = sub3[1]
+                            if len(sub2) > 1:
+                                database = sub2[1]
+                            else:
+                                database = sub1[-1]
+                            schema = sub4[0]
+                            if "Oracle" in rows[i + 1][0]:
+                                sourcedb = "ORACLE"
+                            else:
+                                sourcedb = "DB2"
+                            banner = rows[i + 1][0]
+                            return database, schema
+                            # print(host,database,schema,sourcedb,targetdb)
+                        if "Source database:" in line[0] and ("SQL" in rows[i + 1][0] or "Adaptive" in rows[i + 1][0]):
+                            l = line[0]
+                            sub1 = l.split("\\")
+                            sub2 = sub1[0].split(":")
+                            sub3 = sub2[1].split("@")
+                            sub4 = sub3[0].split(".")
+                            host = sub3[1]
+                            database = sub4[0]
+                            schema = sub4[1]
+                            if "SQL" in rows[i + 1][0]:
+                                sourcedb = "MSSQL"
+                            else:
+                                sourcedb = "SYBASE"
+                            banner = rows[i + 1][0]
+                            return database, schema
+                            # print(host,database,schema,sourcedb,target)
+    return database, schema
 
-    
+
 def modifyAggregatedFile(data, tmp_file, Bucket, dirname,customerName,BatchName):
     headers = ["Server Ip", "Name", "Description", "Schema name"]
     ConversionHeaders = [
@@ -223,12 +264,8 @@ def modifyAggregatedFile(data, tmp_file, Bucket, dirname,customerName,BatchName)
             if targetName not in Targets:
                 Targets.append(targetName)
     for row in csvReader:
-        #database, tmpschema = getDatabaseName(row, Bucket, dirname)
-        tmphost = row["Server IP address and port"]
+        database, tmpschema = getDatabaseName(row, Bucket, dirname)
         schema = row["Schema name"].split(".")[-1]
-        database = row.get("Database name", "")
-        if database == "":
-            database = row["Schema name"].split(".")[0]
         for target in Targets:
             checkTargetHeader = '{0} for "{1}"'.format(ConversionHeaders[0], target)
             if checkTargetHeader in row:
@@ -241,12 +278,7 @@ def modifyAggregatedFile(data, tmp_file, Bucket, dirname,customerName,BatchName)
                 newRow["BatchName"] = BatchName
 
                 for key in headers:
-                    
-                    if key == "Server Ip":
-                        newRow[key] = tmphost
-                    else:
-                        newRow[key] = row[key]
-                                        
+                    newRow[key] = row[key]
                 for header in ConversionHeaders:
                     conversionHeader = '{0} for "{1}"'.format(header, target)
                     newRow[header] = row[conversionHeader]
@@ -256,7 +288,18 @@ def modifyAggregatedFile(data, tmp_file, Bucket, dirname,customerName,BatchName)
     if not os.path.exists(newDirName):
         os.makedirs(newDirName)
     with open(tmp_file, "w") as f:
-        csvWriter = csv.DictWriter(f, fieldnames=AGGREGATED_SUMMARY_HEADER)
+        FinalHeader = ["Timestamp", "database", "schema"]
+        FinalHeader.extend(headers)
+        FinalHeader.extend(["Target"])
+        FinalHeader.extend(ConversionHeaders)
+        FinalHeader.extend(["customerName", "BatchName"])
+        csvWriter = csv.DictWriter(f, fieldnames=FinalHeader)
         csvWriter.writeheader()
         csvWriter.writerows(newRows)
 
+
+"""
+def lambda_handler2(event,context):
+    files=json.loads(event['Records'][0]['body'])
+    modifycsv(files['csvfile'])
+"""
