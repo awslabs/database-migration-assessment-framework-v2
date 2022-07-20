@@ -91,7 +91,7 @@ Parameters:
                  prerequisite stacks
   QSSourceTemplateArn:
     Type: String
-    Default: arn:aws:quicksight:ap-south-1:254711704212:template/dmaf-object-template-dmaf_v2_2-254711704212
+    Default: arn:aws:quicksight:ap-south-1:254711704212:template/dmaf-oraclemaint-template-dmaf_v2_1-254711704212
     Description: The quicksight source template arn, used for locating outputs from the
                  prerequisite stacks
   QSPrincipalType:
@@ -221,6 +221,10 @@ Resources:
                 Type: STRING
               - Name: schema_complexity
                 Type: STRING
+              - Name: applicationname
+                Type: STRING
+              - Name: applicationdescription
+                Type: STRING
               - Name: code_obj_conv_pcs
                 Type: STRING
               - Name: storage_obj_conv_pcs
@@ -234,6 +238,8 @@ Resources:
               - Name: recommended_instance
                 Type: STRING
               - Name: recommended_instance_category
+                Type: STRING
+              - Name: system_maintained_schema
                 Type: STRING
       Permissions:
         - Actions:

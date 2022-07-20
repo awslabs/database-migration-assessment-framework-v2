@@ -28,8 +28,8 @@ CREATE EXTERNAL TABLE `aggtbl`(
   `databasename` string, 
   `schemaname` string, 
   `hostname` string, 
-  `name` int, 
-  `description` int, 
+  `name` string, 
+  `description` string,  
   `schemaname2` string, 
   `target` string, 
   `code_obj_conv_pcs` string, 
@@ -289,6 +289,31 @@ TBLPROPERTIES (
   'skip.header.line.count'='1', 
   'transient_lastDdlTime'='1633411104');
 
+CREATE EXTERNAL TABLE `oracleinternal`(
+  `user` string COMMENT 'from deserializer', 
+  `oracle_maintain` string COMMENT 'from deserializer', 
+  `common` string COMMENT 'from deserializer', 
+  `noexp` string COMMENT 'from deserializer', 
+  `noexpdp` string COMMENT 'from deserializer', 
+  `nosby` string COMMENT 'from deserializer', 
+  `defpwd` string COMMENT 'from deserializer', 
+  `sysaux` string COMMENT 'from deserializer', 
+  `details` string COMMENT 'from deserializer')
+ROW FORMAT SERDE 
+  'org.apache.hadoop.hive.serde2.OpenCSVSerde' 
+WITH SERDEPROPERTIES ( 
+  'quoteChar'='\"', 
+  'separatorChar'=',') 
+STORED AS INPUTFORMAT 
+  'org.apache.hadoop.mapred.TextInputFormat' 
+OUTPUTFORMAT 
+  'org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat'
+LOCATION
+  's3://S3_BUCKET/oracleinternal'
+TBLPROPERTIES (
+  'has_encrypted_data'='false', 
+  'skip.header.line.count'='1', 
+  'transient_lastDdlTime'='1637744400');
 
 CREATE OR REPLACE VIEW instancelookup AS 
 SELECT
@@ -535,6 +560,8 @@ SELECT  (CASE WHEN ("split"("upper"(target),' ')[2] = 'RDS') THEN (CASE WHEN ("s
        ,"upper"(hostname) hostname
        ,"upper"(databasename) databasename
        ,"upper"(schemaname) schemaname
+       , "upper"(name) name
+       , "upper"(description) description
        ,code_obj_conv_pcs
        ,storage_obj_conv_pcs
        ,syntax_obj_conv_pcs
@@ -840,6 +867,8 @@ SELECT
 , "round"((u.occurrence * wqf_30_70_per), 2) wqf_30_70
 , "round"((u.occurrence * wqf_50_50_per), 2) wqf_50_50
 , (CASE WHEN (agg.schema_complexity IN ('1', '2', '3')) THEN 'Easy' WHEN (agg.schema_complexity IN ('4', '5', '6')) THEN 'Medium' WHEN (agg.schema_complexity IN ('7', '8', '9')) THEN 'Complex' ELSE 'Very Complex' END) schema_complexity
+, agg.name applicationname
+, agg.description applicationdescription
 , agg.code_obj_conv_pcs
 , agg.storage_obj_conv_pcs
 , agg.syntax_obj_conv_pcs
@@ -849,9 +878,10 @@ SELECT
 , exc.eeteffort2
 , COALESCE(p.instance_type, 'No Performance Data') recommended_instance
 , COALESCE(p.instance_category, 'No Performance Data') recommended_instance_category
+, COALESCE(oi.oracle_maintain, 'N') system_maintained_schema
 FROM
-  (((uniontable u
+  ((((uniontable u
 LEFT JOIN vw_aggregated agg ON ((((u.target = agg.target) AND (u.databasename = "replace"(agg.databasename, ' ', ''))) AND (u.hostname = "replace"(agg.hostname, ' ', ''))) AND (u.schemaname = "replace"(agg.schemaname, ' ', ''))))
 LEFT JOIN vw_sctwqf2exception exc ON (u.actionitem = exc.actionitem))
-LEFT JOIN performanceview p ON ((u.hostname = "upper"("replace"(p.host, ' ', ''))) AND ("upper"(u.databasename) = "upper"("replace"(p.database_name, ' ', '')))));
-
+LEFT JOIN performanceview p ON ((u.hostname = "upper"("replace"(p.host, ' ', ''))) AND ("upper"(u.databasename) = "upper"("replace"(p.database_name, ' ', '')))))
+LEFT JOIN oracleinternal oi ON ((u.source = 'ORACLE') AND (u.schemaname = "upper"("replace"(oi.user, ' ', '')))));
