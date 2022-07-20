@@ -91,7 +91,7 @@ Parameters:
                  prerequisite stacks
   QSSourceTemplateArn:
     Type: String
-    Default: arn:aws:quicksight:ap-south-1:254711704212:template/dmaf-dev-template-dmaf_v2_1-254711704212
+    Default: arn:aws:quicksight:ap-south-1:254711704212:template/dmaf-object-template-dmaf_v2_2-254711704212
     Description: The quicksight source template arn, used for locating outputs from the
                  prerequisite stacks
   QSPrincipalType:
@@ -173,6 +173,14 @@ Resources:
                 Type: STRING
               - Name: category
                 Type: STRING
+              - Name: object_type
+                Type: STRING
+              - Name: object_name
+                Type: STRING
+              - Name: subobject_type
+                Type: STRING
+              - Name: subobject_name
+                Type: STRING
               - Name: actionitem
                 Type: STRING
               - Name: occurrence
@@ -224,6 +232,8 @@ Resources:
               - Name: eeteffort2
                 Type: DECIMAL
               - Name: recommended_instance
+                Type: STRING
+              - Name: recommended_instance_category
                 Type: STRING
       Permissions:
         - Actions:
