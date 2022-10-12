@@ -1,0 +1,616 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Template to Create Minimalist IAM Roles that can be assumed by DMAF users to deploy DMAF Backend and Frontend CF stacks.
+Parameters:
+    AWSAccountUserID:
+      Description: >-
+        This is the AWS user who will assume the IAM roles setup by this CloudFormation template
+      Type: String
+      Default: RealAdmin
+
+Resources:
+  DMAFFEPolicy:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      PolicyDocument:   
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action: 
+            - quicksight:UpdateTemplatePermissions
+            - quicksight:DescribeTemplatePermissions
+            - quicksight:UpdateTemplateAlias
+            - quicksight:ListDataSets
+            - quicksight:DeleteTemplateAlias
+            - quicksight:DescribeTemplateAlias
+            - quicksight:ListTemplates
+            - quicksight:CreateDataSource
+            - quicksight:ListTemplateAliases
+            - quicksight:CreateTemplateAlias
+            - quicksight:DeleteTemplate
+            - quicksight:UpdateTemplate
+            - quicksight:ListDataSources
+            - quicksight:ListTemplateVersions
+            - quicksight:CreateTemplate
+            - quicksight:DescribeTemplate
+            - quicksight:AccountConfigurations
+            - quicksight:TagResource
+            - quicksight:UnTagResource
+            - quicksight:ListTagsForResource
+            Resource: "*"
+          - Effect: Allow
+            Action: 
+            - quicksight:PassDataSet
+            - quicksight:CreateDataSet
+            - quicksight:UpdateDataSet
+            - quicksight:DeleteDataSet
+            - quicksight:DescribeDataSet
+            - quicksight:DescribeIngestion
+            - quicksight:ListIngestions
+            - quicksight:CreateIngestion
+            - quicksight:CancelIngestion
+            - quicksight:DescribeDataSetPermissions
+            - quicksight:UpdateDataSetPermissions
+            Resource: 
+            - !Sub arn:aws:quicksight:*:${AWS::AccountId}:dataset/*
+          - Effect: Allow
+            Action:
+            - quicksight:UpdateDataSourcePermissions
+            - quicksight:DescribeDataSourcePermissions
+            - quicksight:PassDataSource
+            - quicksight:DescribeDataSource
+            - quicksight:DeleteDataSource
+            - quicksight:UpdateDataSource
+            - quicksight:ListDataSources
+            - quicksight:CreateDataSource
+            - quicksight:TagResource
+            - quicksight:UnTagResource
+            - quicksight:ListTagsForResource
+            Resource:
+            - !Sub arn:aws:quicksight:*:${AWS::AccountId}:datasource/*
+          - Effect: Allow
+            Action:
+            - quicksight:CreateDashboard
+            - quicksight:DescribeDashboard
+            - quicksight:ListDashboards
+            - quicksight:ListDashboardVersions
+            - quicksight:GetDashboardEmbedUrl
+            - quicksight:UpdateDashboardPermissions
+            - quicksight:SearchDashboards
+            - quicksight:UpdateDashboard
+            - quicksight:DeleteDashboard
+            - quicksight:UpdateDashboardPublishedVersion
+            - quicksight:DescribeDashboardPermissions
+            Resource:
+            - !Sub arn:aws:quicksight:*:${AWS::AccountId}:dashboard/*
+          - Effect: Allow
+            Action: 
+            - cloudformation:DescribeStackEvents
+            - cloudformation:DescribeStackSet
+            - cloudformation:CreateStack
+            - cloudformation:DescribeStackSetOperation
+            - cloudformation:DeleteStack
+            - cloudformation:DescribeStackResources
+            - cloudformation:UpdateStack
+            - cloudformation:DescribeStackResource
+            - cloudformation:DescribeStacks
+            - cloudformation:CreateChangeSet
+            - cloudformation:DescribeChangeSet
+            - cloudformation:CreateStackSet
+            - cloudformation:DeleteChangeSet
+            - cloudformation:ListChangeSets
+            - cloudformation:ExecuteChangeSet
+            - cloudformation:GetTemplateSummary
+            - cloudformation:ListStacks
+            - cloudformation:CreateUploadBucket
+            - cloudformation:GetStackPolicy
+            Resource: 
+            - !Sub arn:aws:cloudformation:*:${AWS::AccountId}:stack/*/*
+            - !Sub arn:aws:cloudformation:*:${AWS::AccountId}:stackset/*:*
+          - Effect: Allow
+            Action: 
+            - s3:GetLifecycleConfiguration
+            - s3:GetStorageLensConfiguration
+            - s3:PutBucketWebsite
+            - s3:PutAnalyticsConfiguration
+            - s3:GetJobTagging
+            - s3:ListBucketVersions
+            - s3:ListBucket
+            - s3:GetMetricsConfiguration
+            - s3:GetStorageLensConfigurationTagging
+            - s3:GetReplicationConfiguration
+            - s3:PutBucketVersioning
+            Resource: 
+            - arn:aws:s3:::dmafv2-outputtest-bucket-name
+            - !Sub arn:aws:s3:*:${AWS::AccountId}:job/*
+            - !Sub arn:aws:s3:*:${AWS::AccountId}:storage-lens/*
+          - Effect: Allow
+            Action: 
+            - s3:DeleteObjectVersion
+            - s3:GetObjectVersionTagging
+            - s3:GetObjectVersionAttributes
+            - s3:GetObjectVersionTorrent
+            - s3:GetObjectAcl
+            - s3:GetObjectVersionAcl
+            - s3:GetObjectTagging
+            - s3:PutObjectTagging
+            - s3:DeleteObject
+            - s3:PutObjectAcl
+            - s3:DeleteObjectTagging
+            - s3:GetObjectRetention
+            - s3:GetObjectAttributes
+            - s3:PutObjectVersionTagging
+            - s3:PutObjectLegalHold
+            - s3:DeleteObjectVersionTagging
+            - s3:GetObjectLegalHold
+            - s3:ListMultipartUploadParts
+            - s3:PutObject
+            - s3:GetObject
+            - s3:GetObjectTorrent
+            - s3:PutObjectRetention
+            - s3:PutObjectVersionAcl
+            - s3:GetObjectVersionForReplication
+            - s3:ReplicateDelete
+            - s3:GetObjectVersion
+            Resource:
+            - arn:aws:s3:::dmafv2-outputtest-bucket-name/*
+          - Effect: Allow
+            Action: 
+            - cloudformation:CreateUploadBucket
+            - cloudformation:GetTemplateSummary
+            - s3:PutObject
+            - s3:ListBucket
+            - s3:GetObject
+            - s3:CreateBucket
+            Resource: "*"    
+      ManagedPolicyName: DMAF-CF-FE-Stack-Policy
+
+  MyFETestRole:
+    Type: AWS::IAM::Role
+    DependsOn:
+      - DMAFFEPolicy
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - cloudformation.amazonaws.com
+              AWS:
+                - !Sub arn:aws:iam::${AWS::AccountId}:user/${AWSAccountUserID}
+            Action:
+              - 'sts:AssumeRole'
+      ManagedPolicyArns:
+        - !Sub arn:aws:iam::${AWS::AccountId}:policy/DMAF-CF-FE-Stack-Policy
+      Description: Role to provide access to deploy DMAF FE CloudFormation Stack
+
+  DMAFBEPolicy1:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action: 
+                - autoscaling:AttachLoadBalancers
+                - autoscaling:DetachLoadBalancers
+                - autoscaling:SetDesiredCapacity
+                - autoscaling:DetachLoadBalancerTargetGroups
+                - autoscaling:DeletePolicy
+                - autoscaling:AttachLoadBalancerTargetGroups
+                - autoscaling:CreateLaunchConfiguration
+                - autoscaling:AttachInstances
+                - autoscaling:DeleteLaunchConfiguration
+                - autoscaling:PutScalingPolicy
+                - autoscaling:UpdateAutoScalingGroup
+                - autoscaling:DeleteAutoScalingGroup
+                - autoscaling:SetInstanceHealth
+                - autoscaling:CreateAutoScalingGroup
+                - autoscaling:DetachInstances
+                - autoscaling:DeleteScheduledAction
+            Resource: 
+                - !Sub arn:aws:autoscaling:*:${AWS::AccountId}:autoScalingGroup:*:autoScalingGroupName/*
+                - !Sub arn:aws:autoscaling:*:${AWS::AccountId}:launchConfiguration:*:launchConfigurationName/*
+          - Effect: Allow
+            Action: 
+                - autoscaling:DescribeScalingActivities
+                - autoscaling:DescribeAutoScalingGroups
+                - autoscaling:DescribeLaunchConfigurations
+            Resource: "*"
+          - Effect: Allow
+            Action: 
+                - cloudformation:DescribeStackEvents
+                - cloudformation:DescribeStackSet
+                - cloudformation:CreateStack
+                - cloudformation:DescribeStackSetOperation
+                - cloudformation:DeleteStack
+                - cloudformation:DescribeStackResources
+                - cloudformation:UpdateStack
+                - cloudformation:DescribeStackResource
+                - cloudformation:DescribeStacks
+                - cloudformation:CreateChangeSet
+                - cloudformation:DescribeChangeSet
+                - cloudformation:CreateStackSet
+                - cloudformation:DeleteChangeSet
+                - cloudformation:ListChangeSets
+                - cloudformation:ExecuteChangeSet
+                - cloudformation:GetTemplateSummary
+                - cloudformation:ListStacks
+                - cloudformation:CreateUploadBucket
+                - cloudformation:GetStackPolicy
+            Resource: 
+                - !Sub arn:aws:cloudformation:*:${AWS::AccountId}:stack/*/*
+                - !Sub arn:aws:cloudformation:*:${AWS::AccountId}:stackset/*:*
+          - Effect: Allow
+            Action: 
+            - cloudformation:CreateUploadBucket
+            - cloudformation:GetTemplateSummary
+            - s3:PutObject
+            - s3:ListBucket
+            - s3:GetObject
+            - s3:CreateBucket
+            Resource: "*"     
+          - Effect: Allow
+            Action: 
+                - cloudwatch:PutMetricAlarm
+                - cloudwatch:EnableAlarmActions
+                - cloudwatch:DeleteAlarms
+            Resource: 
+                - !Sub arn:aws:cloudwatch:*:${AWS::AccountId}:alarm:*
+          - Effect: Allow
+            Action: 
+                - events:PutTargets
+                - events:RemoveTargets
+            Resource: 
+                - !Sub arn:aws:events:*:${AWS::AccountId}:*
+          - Effect: Allow
+            Action: 
+                - ec2:Describe*
+            Resource: "*"
+      ManagedPolicyName: DMAFCFBE-ASG-CF-EC2-Stack-Policy
+
+  DMAFBEPolicy2:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action: 
+                - glue:GetConnections
+                - glue:GetCrawler
+                - glue:DeleteDatabase
+                - glue:GetTableVersions
+                - glue:DeleteTableVersion
+                - glue:UpdateTable
+                - glue:StopTrigger
+                - glue:StopCrawler
+                - glue:DeleteTable
+                - glue:StartTrigger
+                - glue:DeleteSchema
+                - glue:GetTableVersion
+                - glue:UpdateTrigger
+                - glue:GetConnection
+                - glue:UpdateRegistry
+                - glue:StartCrawler
+                - glue:UpdateJob
+                - glue:StartWorkflowRun
+                - glue:UpdatePartition
+                - glue:UpdateDatabase
+                - glue:CreateTable
+                - glue:GetTables
+                - glue:DeleteCrawler
+                - glue:UpdateSchema
+                - glue:GetDatabases
+                - glue:CreateConnection
+                - glue:GetTable
+                - glue:GetDatabase
+                - glue:DeleteConnection
+                - glue:CreateDatabase
+                - glue:StartJobRun
+                - glue:CreateSchema
+                - glue:StopSession
+                - glue:DeleteTrigger
+            Resource: 
+                - !Sub arn:aws:glue:*:${AWS::AccountId}:database/*
+                - !Sub arn:aws:glue:*:${AWS::AccountId}:schema/*
+                - !Sub arn:aws:glue:*:${AWS::AccountId}:workflow/*
+                - !Sub arn:aws:glue:*:${AWS::AccountId}:table/*/*
+                - !Sub arn:aws:glue:*:${AWS::AccountId}:catalog
+                - !Sub arn:aws:glue:*:${AWS::AccountId}:connection/*
+                - !Sub arn:aws:glue:*:${AWS::AccountId}:trigger/*
+                - !Sub arn:aws:glue:*:${AWS::AccountId}:crawler/*
+                - !Sub arn:aws:glue:*:${AWS::AccountId}:registry/*
+                - !Sub arn:aws:glue:*:${AWS::AccountId}:userDefinedFunction/*/*
+                - !Sub arn:aws:glue:*:${AWS::AccountId}:session/*
+                - !Sub arn:aws:glue:*:${AWS::AccountId}:job/*
+          - Effect: Allow
+            Action: 
+                - glue:GetCrawlers
+                - glue:CreateTrigger
+                - glue:StartCrawlerSchedule
+                - glue:StopCrawlerSchedule
+                - glue:GetCrawlerMetrics
+                - glue:CreateCrawler
+            Resource: 
+                - !Sub arn:aws:glue:*:${AWS::AccountId}:*
+          - Effect: Allow
+            Action: 
+                - events:DeleteRule
+                - events:PutTargets
+                - events:DescribeRule
+                - events:EnableRule
+                - events:PutRule
+                - events:RemoveTargets
+                - events:DisableRule
+            Resource: 
+                - !Sub arn:aws:events:*:${AWS::AccountId}:rule/[*/]*
+                - !Sub arn:aws:events:*:${AWS::AccountId}:rule/*
+          - Effect: Allow
+            Action: 
+                - events:ListRules
+            Resource: "*"
+          - Effect: Allow
+            Action: 
+                - iam:CreateInstanceProfile
+                - iam:UntagRole
+                - iam:TagRole
+                - iam:RemoveRoleFromInstanceProfile
+                - iam:DeletePolicy
+                - iam:CreateRole
+                - iam:AttachRolePolicy
+                - iam:ListInstanceProfileTags
+                - iam:PutRolePolicy
+                - iam:AddRoleToInstanceProfile
+                - iam:ListInstanceProfilesForRole
+                - iam:DetachRolePolicy
+                - iam:DeleteRolePolicy
+                - iam:ListRolePolicies
+                - iam:CreatePolicyVersion
+                - iam:DeleteInstanceProfile
+                - iam:GetRole
+                - iam:GetInstanceProfile
+                - iam:DeleteRole
+                - iam:ListInstanceProfiles
+                - iam:TagPolicy
+                - iam:CreatePolicy
+                - iam:ListPolicyVersions
+                - iam:UntagPolicy
+                - iam:UpdateRole
+                - iam:UntagInstanceProfile
+                - iam:GetRolePolicy
+                - iam:TagInstanceProfile
+            Resource: 
+                - !Sub arn:aws:iam::${AWS::AccountId}:instance-profile/*
+                - !Sub arn:aws:iam::${AWS::AccountId}:policy/*
+                - !Sub arn:aws:iam::${AWS::AccountId}:role/*
+          - Effect: Allow
+            Action: 
+                - iam:ListRoles
+                - iam:GetAccountAuthorizationDetails
+            Resource: "*"
+          - Effect: Allow
+            Action: 
+                - iam:PassRole
+            Resource:
+                - !Sub arn:aws:iam::${AWS::AccountId}:role/*LambdaExecutionRole*
+                - !Sub arn:aws:iam::${AWS::AccountId}:role/*DmafInstancesRole*
+      ManagedPolicyName: DMAFCFBE-EVENTS-GLUE-IAM-Stack-Policy
+
+  DMAFBEPolicy3:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action:
+                - lambda:CreateFunction
+                - lambda:TagResource
+                - lambda:UpdateEventSourceMapping
+                - lambda:InvokeFunctionUrl
+                - lambda:InvokeFunction
+                - lambda:GetEventSourceMapping
+                - lambda:GetFunction
+                - lambda:AddLayerVersionPermission
+                - lambda:RemoveLayerVersionPermission
+                - lambda:UntagResource
+                - lambda:UpdateFunctionCode
+                - lambda:AddPermission
+                - lambda:ListEventSourceMappings
+                - lambda:DeleteFunction
+                - lambda:PublishVersion
+                - lambda:DeleteEventSourceMapping
+                - lambda:RemovePermission
+            Resource:
+                - !Sub arn:aws:lambda:*:${AWS::AccountId}:*
+          - Effect: Allow
+            Action: 
+                - lambda:GetEventSourceMapping
+                - lambda:ListEventSourceMappings
+                - lambda:DeleteEventSourceMapping
+                - lambda:CreateEventSourceMapping
+            Resource: "*"
+          - Effect: Allow
+            Action: 
+                - quicksight:*Dashboard*
+                - quicksight:*Dashboards
+                - quicksight:*DataSet
+                - quicksight:*DataSource
+                - quicksight:*Template
+            Resource: 
+                - !Sub arn:aws:quicksight:*:${AWS::AccountId}:dashboard/*
+                - !Sub arn:aws:quicksight:*:${AWS::AccountId}:datasource/*
+                - !Sub arn:aws:quicksight:*:${AWS::AccountId}:template/*
+                - !Sub arn:aws:quicksight:*:${AWS::AccountId}:dataset/*
+          - Effect: Allow
+            Action: 
+                - quicksight:ListDataSources
+                - quicksight:ListDataSets
+                - quicksight:CreateDataSource
+            Resource: "*"
+          - Effect: Allow
+            Action: 
+                - s3:DeleteObjectVersion
+                - s3:GetObjectVersionTagging
+                - s3:GetBucketLogging
+                - s3:ReplicateTags
+                - s3:CreateBucket
+                - s3:ListBucket
+                - s3:GetBucketPolicy
+                - s3:GetObjectAcl
+                - s3:DeleteJobTagging
+                - s3:PutBucketTagging
+                - s3:GetObjectVersionAcl
+                - s3:PutObjectTagging
+                - s3:DeleteObject
+                - s3:DeleteBucket
+                - s3:DeleteObjectTagging
+                - s3:DeleteStorageLensConfigurationTagging
+                - s3:GetObjectAttributes
+                - s3:PutStorageLensConfigurationTagging
+                - s3:PutObjectVersionTagging
+                - s3:PutJobTagging
+                - s3:DeleteObjectVersionTagging
+                - s3:PutBucketCORS
+                - s3:GetBucketAcl
+                - s3:GetBucketNotification
+                - s3:DeleteBucketPolicy
+                - s3:PutObject
+                - s3:GetObject
+                - s3:PutBucketNotification
+                - s3:ListAllMyBuckets
+                - s3:PutBucketLogging
+                - s3:GetBucketCORS
+                - s3:GetBucketLocation
+                - s3:GetObjectVersion
+            Resource: 
+                - arn:aws:s3:::dmafv2-outputtest-bucket-name
+                - arn:aws:s3:::dmafv2-s3-installation-bucket
+                - arn:aws:s3:::dmafv2-sct-reports-bucket-name
+                - arn:aws:s3:::dmafv2-outputtest-bucket-name/*
+                - arn:aws:s3:::dmafv2-s3-installation-bucket/*
+                - arn:aws:s3:::dmafv2-sct-reports-bucket-name/*
+      ManagedPolicyName: DMAFCFBE-LAMBDA-QS-S3-Stack-Policy
+
+  DMAFBEPolicy4:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action: 
+            - sns:ListSubscriptionsByTopic
+            - sns:Publish
+            - sns:GetTopicAttributes
+            - sns:DeleteTopic
+            - sns:CreateTopic
+            - sns:SetTopicAttributes
+            - sns:Subscribe
+            - sns:ConfirmSubscription
+            Resource: 
+            - !Sub arn:aws:sns:*:${AWS::AccountId}:*
+          - Effect: Allow
+            Action: 
+            - sns:SetSubscriptionAttributes
+            - sns:ListTopics
+            - sns:Unsubscribe
+            - sns:ListSubscriptions
+            Resource: "*"
+          - Effect: Allow
+            Action:
+            - secretsmanager:UntagResource
+            - secretsmanager:GetSecretValue
+            - secretsmanager:PutSecretValue
+            - secretsmanager:CreateSecret
+            - secretsmanager:DeleteSecret
+            - secretsmanager:RotateSecret
+            - secretsmanager:TagResource
+            - secretsmanager:UpdateSecret
+            Resource: 
+            - !Sub arn:aws:secretsmanager:*:${AWS::AccountId}:secret:*
+          - Effect: Allow
+            Action: 
+            - ssm:PutParameter
+            - ssm:LabelParameterVersion
+            - ssm:DeleteParameter
+            - ssm:UnlabelParameterVersion
+            - ssm:GetParameterHistory
+            - ssm:DescribeDocumentParameters
+            Resource: 
+            - !Sub arn:aws:ssm:*:${AWS::AccountId}:*
+          - Effect: Allow
+            Action: 
+            - ssm:DescribeParameters
+            - ssm:GetParameters
+            - ssm:GetParameter
+            - ssm:DeleteParameters
+            - ssm:GetParametersByPath
+            Resource: "*"
+          - Effect: Allow
+            Action: 
+              - sqs:DeleteMessage
+              - events:PutTargets
+              - sqs:ChangeMessageVisibility
+              - sqs:PurgeQueue
+              - sqs:ReceiveMessage
+              - sqs:DeleteQueue
+              - sqs:SendMessage
+              - sqs:GetQueueAttributes
+              - events:RemoveTargets
+              - sqs:CreateQueue
+              - sqs:SetQueueAttributes
+            Resource: 
+              - !Sub arn:aws:sqs:*:${AWS::AccountId}:*
+              - !Sub arn:aws:events:*:${AWS::AccountId}:rule/[*/]*
+          - Effect: Allow
+            Action: sqs:ListQueues
+            Resource: "*"
+      ManagedPolicyName: DMAFCFBE-SNS-SSM-SQS-Stack-Policy
+
+  MyBETestRole:
+    Type: AWS::IAM::Role
+    DependsOn:
+      - DMAFBEPolicy4
+      - DMAFBEPolicy3
+      - DMAFBEPolicy2
+      - DMAFBEPolicy1
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - cloudformation.amazonaws.com
+              AWS:
+                - !Sub arn:aws:iam::${AWS::AccountId}:user/${AWSAccountUserID}
+            Action:
+              - 'sts:AssumeRole'          
+      ManagedPolicyArns:
+        - !Sub arn:aws:iam::${AWS::AccountId}:policy/DMAFCFBE-ASG-CF-EC2-Stack-Policy
+        - !Sub arn:aws:iam::${AWS::AccountId}:policy/DMAFCFBE-EVENTS-GLUE-IAM-Stack-Policy
+        - !Sub arn:aws:iam::${AWS::AccountId}:policy/DMAFCFBE-LAMBDA-QS-S3-Stack-Policy
+        - !Sub arn:aws:iam::${AWS::AccountId}:policy/DMAFCFBE-SNS-SSM-SQS-Stack-Policy
+      Description: Role to provide access to deploy DMAF BE CloudFormation Stack
+
+Outputs: 
+  FERoleName: 
+    Description: Name of Created IAM Role
+    Value: !Ref MyFETestRole  
+  FERoleArn: 
+    Description: Arn of Created Role
+    Value: !GetAtt MyFETestRole.Arn 
+  FEPolicyName:
+    Description: Name of Created IAM Policy
+    Value: !Ref DMAFFEPolicy 
+  BERoleName: 
+    Description: Name of Created IAM Role
+    Value: !Ref MyBETestRole
+  BERoleArn: 
+    Description: Arn of Created Role
+    Value: !GetAtt MyBETestRole.Arn 
+  # BEPolicyName:
+  #   Description: Name of Created IAM Policy
+  #   Value: !Ref DMAFBEPolicy 

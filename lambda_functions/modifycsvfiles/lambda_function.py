@@ -50,6 +50,29 @@ AGGREGATED_SUMMARY_HEADER = [
 ]
 
 
+def validate_files(aggregated_data, files_list):
+    csvReader = csv.DictReader(aggregated_data)
+    valid = True
+    logger.info("Checking if folders exist as per the aggregated csv file.")
+    for row in csvReader:
+        parent_folder = row["Name"]
+        schema_name = row["Schema name"]
+        schema_folder = os.path.join(parent_folder, schema_name)
+
+        if parent_folder in files_list and schema_folder in files_list:
+            logger.info(
+                "{0} folder exist".format(os.path.join(parent_folder, schema_folder))
+            )
+        else:
+            logger.error(
+                "{0} folder doesn't exist".format(
+                    os.path.join(parent_folder, schema_folder)
+                )
+            )
+            valid = False
+    return valid
+
+
 def lambda_handler(event, context):
     client = boto3.client("s3")
     lambdaclient = boto3.client("lambda")
@@ -70,7 +93,7 @@ def lambda_handler(event, context):
 
     logger.info(event)
     flag = False
-    
+
     mesg = json.loads(event["Records"][0]["Sns"]["Message"])
 
     inbucket = mesg["Records"][0]["s3"]["bucket"]["name"]
@@ -85,7 +108,11 @@ def lambda_handler(event, context):
         baseNameWithoutExtension = os.path.splitext(zipFileName)[0]
         splitZipFileName = baseNameWithoutExtension.split("_")
         if len(splitZipFileName) == 1:
-            logger.error ("Unable to process file. File : {0} do not follow the naming conventions (customerName_BatchName.zip)".format(key))
+            logger.error(
+                "Unable to process file. File : {0} do not follow the naming conventions (customerName_BatchName.zip)".format(
+                    key
+                )
+            )
             return None
         customerName = splitZipFileName[0]
         BatchName = "".join(splitZipFileName[1:])
@@ -96,60 +123,38 @@ def lambda_handler(event, context):
             tf.seek(0)
             # Read the file as a zipfile and process the members
             with zipfile.ZipFile(tf, mode="r") as zipf:
+
+                files_list = []
+                for file in zipf.infolist():
+                    fileName = file.filename
+                    if ".DS_Store" in fileName or "__MACOSX" in fileName:
+                        continue
+                    files_list.append(fileName.strip("/"))
+
+                if "Aggregated_report.csv" not in files_list:
+                    logger.error(
+                        "Unable to process file. File : {0}. It do not have zip Aggregated_report.csv file.".format(
+                            key
+                        )
+                    )
+                    return None
+
+                data = zipf.read("Aggregated_report.csv").decode("utf-8").splitlines()
+                if not validate_files(data, files_list):
+                    logger.error("Failed to process file. File : {0}.".format(key))
+                    return None
+
                 for file in zipf.infolist():
                     fileName = file.filename
                     logger.info(fileName)
                     if ".DS_Store" in fileName or "__MACOSX" in fileName:
                         continue
-                    if ".sql" in fileName:
-                        putFile = client.put_object(
-                            Bucket=inbucket,
-                            Key="Inputfile/" + fileName,
-                            Body=zipf.read(file),
-                        )
-                        putObjects.append(putFile)
-                    elif "wqf" in fileName:
-                        putFile = client.put_object(
-                            Bucket=inbucket,
-                            Key="Inputfile/wqfweightage/" + fileName,
-                            Body=zipf.read(file),
-                        )
-                        putObjects.append(putFile)
-                    elif "Complexity" in fileName:
-                        putFile = client.put_object(
-                            Bucket=inbucket,
-                            Key="Inputfile/complexityweightage/" + fileName,
-                            Body=zipf.read(file),
-                        )
-                        putObjects.append(putFile)
-                    #elif "rds" in fileName:
-                    #    putFile = client.put_object(
-                    #        Bucket=inbucket,
-                    #        Key="Inputfile/rdsinfo/" + fileName,
-                    #        Body=zipf.read(file),
-                    #    )
-                    #    putObjects.append(putFile)
-                    elif "coderanges" in fileName:
-                        putFile = client.put_object(
-                            Bucket=inbucket,
-                            Key="Inputfile/actioncodes/" + fileName,
-                            Body=zipf.read(file),
-                        )
-                        putObjects.append(putFile)
-                    # elif "sct" in fileName:
-                    #     putFile = client.put_object(
-                    #         Bucket=inbucket,
-                    #         Key="Inputfile/sctactioncodes/" + fileName,
-                    #         Body=zipf.read(file),
-                    #     )
-                    #     putObjects.append(putFile)
-                    else:
-                        putFile = client.put_object(
-                            Bucket=inbucket,
-                            Key=dirname + "/" + fileName,
-                            Body=zipf.read(file),
-                        )
-                        putObjects.append(putFile)
+                    putFile = client.put_object(
+                        Bucket=inbucket,
+                        Key=dirname + "/" + fileName,
+                        Body=zipf.read(file),
+                    )
+                    putObjects.append(putFile)
                     # print(putFile)
         # Delete zip file after unzip
         if len(putObjects) > 0:
@@ -171,9 +176,8 @@ def lambda_handler(event, context):
         )
         raise e
 
-
     files = []
-    paginator = client.get_paginator("list_objects_v2") 
+    paginator = client.get_paginator("list_objects_v2")
     pages = paginator.paginate(Bucket=inbucket, Prefix=dirname)
     logger.info(pages)
     for page in pages:
@@ -184,7 +188,9 @@ def lambda_handler(event, context):
                 data = s3_object.get()["Body"].read().decode("utf-8").splitlines()
                 tmp_file_name = "/tmp/Aggregated_report_" + dirname + ".csv"
                 keyDir = os.path.split(obj["Key"])[0]
-                modifyAggregatedFile(data, tmp_file_name, inbucket, keyDir,customerName,BatchName)
+                modifyAggregatedFile(
+                    data, tmp_file_name, inbucket, keyDir, customerName, BatchName
+                )
                 client.upload_file(
                     tmp_file_name,
                     outputbucket,
@@ -200,9 +206,7 @@ def lambda_handler(event, context):
         response = sqs_client.send_message(QueueUrl=csvqueueurl, MessageBody=p)
 
 
-
-    
-def modifyAggregatedFile(data, tmp_file, Bucket, dirname,customerName,BatchName):
+def modifyAggregatedFile(data, tmp_file, Bucket, dirname, customerName, BatchName):
     headers = ["Server Ip", "Name", "Description", "Schema name"]
     ConversionHeaders = [
         "Code object conversion %",
@@ -223,7 +227,7 @@ def modifyAggregatedFile(data, tmp_file, Bucket, dirname,customerName,BatchName)
             if targetName not in Targets:
                 Targets.append(targetName)
     for row in csvReader:
-        #database, tmpschema = getDatabaseName(row, Bucket, dirname)
+        # database, tmpschema = getDatabaseName(row, Bucket, dirname)
         tmphost = row["Server IP address and port"]
         schema = row["Schema name"].split(".")[-1]
         database = row.get("Database name", "")
@@ -241,12 +245,12 @@ def modifyAggregatedFile(data, tmp_file, Bucket, dirname,customerName,BatchName)
                 newRow["BatchName"] = BatchName
 
                 for key in headers:
-                    
+
                     if key == "Server Ip":
                         newRow[key] = tmphost
                     else:
                         newRow[key] = row[key]
-                                        
+
                 for header in ConversionHeaders:
                     conversionHeader = '{0} for "{1}"'.format(header, target)
                     newRow[header] = row[conversionHeader]
@@ -259,4 +263,3 @@ def modifyAggregatedFile(data, tmp_file, Bucket, dirname,customerName,BatchName)
         csvWriter = csv.DictWriter(f, fieldnames=AGGREGATED_SUMMARY_HEADER)
         csvWriter.writeheader()
         csvWriter.writerows(newRows)
-
