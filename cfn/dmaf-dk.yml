@@ -17,9 +17,6 @@ Parameters:
   outputbucket:
     Type: String
     Default: outputtest-bucket-name
-  dmafSecretsManagerName:
-    Type: String
-    Default: dmaf-secret
   dmafinstallbucket:
     Description: >-
       This is the bucket where you stored lambda function zip files and jar
@@ -98,8 +95,7 @@ Metadata:
       - 
         Label: 
           default: "Parameters for Automated Deployment Type"
-        Parameters: 
-          - dmafSecretsManagerName
+        Parameters:
           - ImageId
           - VPC
           - InstanceType
@@ -123,8 +119,6 @@ Metadata:
         default: "Athena Database Name"
       Deploymenttype:
         default: "Deployment Type"
-      dmafSecretsManagerName:
-        default: "Secret Name to Store DB Credentials"
       ImageId:
         default: "AMI ID"
       InstanceType:
@@ -144,17 +138,6 @@ Metadata:
       EC2alarmsnssubscriptionemail:
         default: "Email to send SNS Notifcations for EC2 alarm"      
 Resources:
-  DMAFSecret:
-    Type: 'AWS::SecretsManager::Secret'
-    Properties:
-      Name: !Ref dmafSecretsManagerName
-      Description: This secret has a username and password in SecretString to use with dmaf.
-      SecretString: '{"ORACLE":{"username":"DMAFUsername","password":"secret-password"},"MSSQL":{"username":"DMAFUsername","password":"secret-password"},"DB2":{"username":"DMAFUsername","password":"secret-password"},"SYBASE":{"username":"DMAFUsername","password":"secret-password"}}'
-      Tags:
-        - Key: TOOL
-          Value: !Ref TOOL
-        - Key: dmaf
-          Value: dmaf
   LaunchConfig:
     Condition: isAutomated
     Type: 'AWS::AutoScaling::LaunchConfiguration'
@@ -180,7 +163,6 @@ Resources:
               aws s3 cp s3://${dmafinstallbucket}/dmafv2.zip /home/ec2-user/dmafv2.zip --sse
               # export secret name
               cat > /etc/profile.d/load_env.sh << 'EOF'              
-              export DMAF_SECRETS_NAME=${dmafSecretsManagerName}
               export DMAF_REGION=${AWS::Region}
               export INPUT_BUCKET=${sctinputbucket}
               export OUTPUT_BUCKET=${s3outputbucket}
@@ -271,7 +253,7 @@ Resources:
                   - secretsmanager:GetSecretValue
                   - secretsmanager:DescribeSecret
                   - secretsmanager:ListSecrets
-                Resource: !Ref DMAFSecret
+                Resource: "*"
   ISProfile:
     Condition: isAutomated
     Type: 'AWS::IAM::InstanceProfile'
@@ -456,8 +438,24 @@ Resources:
                   - 'glue:GetDatabase'
                   - 'glue:GetTable'
                   - 'glue:CreateTable'
-                  # - 'glue:*'
-                Resource: '*'
+                Resource:
+                  - !Sub arn:aws:s3:::${sctinputbucket}
+                  - !Sub arn:aws:s3:::${sctinputbucket}/*
+                  - !Sub arn:aws:s3:::${outputbucket}
+                  - !Sub arn:aws:s3:::${outputbucket}/*
+                  - !Sub arn:aws:s3:::${dmafinstallbucket}
+                  - !Sub arn:aws:s3:::${dmafinstallbucket}/*
+                  - !Sub arn:aws:sqs:*:${AWS::AccountId}:*
+                  - !Sub arn:aws:sns:*:${AWS::AccountId}:*
+                  - !Sub arn:aws:athena:*:${AWS::AccountId}:workgroup/*
+                  - !Sub arn:aws:athena:*:${AWS::AccountId}:workgroup/primary/*
+                  - !Sub arn:aws:glue:*:${AWS::AccountId}:catalog
+                  - !Sub arn:aws:glue:*:${AWS::AccountId}:database/*
+                  - !Sub arn:aws:glue:*:${AWS::AccountId}:table/*
+                  - !Sub arn:aws:lambda:*:${AWS::AccountId}:*
+                  - !Sub arn:aws:events:*:${AWS::AccountId}:rule/*
+                  - !Sub arn:aws:events:*:${AWS::AccountId}:rule/[*/]*
+                  - !Sub arn:aws:logs:*:${AWS::AccountId}:log-group:*:*
   snstolambdasubscription:
     Type: 'AWS::SNS::Subscription'
     Properties:
@@ -588,7 +586,7 @@ Resources:
         - LambdaExecutionRole
         - Arn
       Runtime: python3.7
-      Timeout: 120
+      Timeout: 900
   CustomResource:
       Type: Custom::lambdaResource
       Properties:

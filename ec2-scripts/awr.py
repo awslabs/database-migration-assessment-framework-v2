@@ -55,21 +55,11 @@ ORACLE_SQL = os.path.join(SCRIPTS_DIR, "oracle_performance.sql")
 MSSQL_SQL = os.path.join(SCRIPTS_DIR, "get_mssql_performance.sql")
 now = datetime.now()
 
-DMAF_SECRETS_NAME = os.environ.get("DMAF_SECRETS_NAME", None)
 DMAF_REGION = os.environ.get("DMAF_REGION", "us-east-1")
 s3inputbucket = os.environ.get("INPUT_BUCKET")
 
 s3 = boto3.resource("s3")
 sm_client = boto3.client("secretsmanager", region_name=DMAF_REGION)
-
-logger.info("Fetching credentials from secrets manager")
-response = sm_client.get_secret_value(SecretId=DMAF_SECRETS_NAME)
-
-# print (response)
-
-SecretString = json.loads(response.get("SecretString"))
-oracleCredentials = SecretString.get("ORACLE")
-msssqlCredentials = SecretString.get("MSSQL")
 
 dblist = open(schemalist, "r")
 outbucket = os.environ["OUTPUT_BUCKET"]  # data[3]
@@ -83,9 +73,40 @@ with open(schemalist,"r") as f:
     for row in reader:
         # print (row)
         try:
+            ###########Start - Logic to handle secret manager fetch!##########
+            if row["Password"] != "" and row["Password"].strip() != "":
+                if row["Login"] != "" and row["Login"].strip() != "":
+                  print("Source Engine={0}, Login={1}, Password={2}".format(row["Source Engine"], row["Login"], row["Password"]))
+                else:
+                    print("Error: 'Login' is not defined in input.csv file. Please define both Login & Password fields.Row[Name]={0}".format(row["Name"]))
+                    raise Exception("Error: 'Login' is not defined in input.csv file. Please define both Login & Password fields. Row[Name]={0}".format(row["Name"]))
+            elif row["Secret Manager Key"] != "" and row["Secret Manager Key"].strip() != "":
+                print("Connecting to secrets manager to read username/password for secret manager key = {0}".format(row["Secret Manager Key"]))
+                try:
+                    response = sm_client.get_secret_value(SecretId=row["Secret Manager Key"])
+                    #print (response)
+                    SecretString = json.loads(response.get("SecretString"))
+                    row["Login"] = SecretString.get("username")
+                    row["Password"] = SecretString.get("password")
+                    if row["Server IP"] == "":
+                        row["Server IP"] = SecretString.get("host")
+                    if row["Port"] == "":
+                        row["Port"] = SecretString.get("port")
+                    if row["Database name"] == "":
+                        row["Database name"] = SecretString.get("dbname")
+                    print("Source Engine={0}, Login={1}, Password={2}, ServerIP={3}, Port={4}, DBName={5}".format(row["Source Engine"], 
+                            row["Login"], row["Password"], row["Server IP"], row["Port"], row["Database name"]))
+                except Exception as e:
+                    print("Error: connection to secrets manager failed. Error Msg = ", str(e))
+            elif row["Password"].strip() == "" and row["Secret Manager Key"].strip() == "":
+               #print("Error: Both 'Password' and 'Secret Manager Key' fields are not defined in input.csv file. Row[Name]={0}".format(row["Name"]))
+               raise Exception("Error: Both 'Password' and 'Secret Manager Key' fields are not defined in input.csv file. Row[Name]={0}".format(row["Name"]))
+            ###########End - Logic to handle secret manager fetch!##########
             s_server = row["Server IP"]
             s_port = row["Port"]
-            s_sid = row["SID"]
+            # SID is not a valid column/field in input.csv file
+            # s_sid = row["SID"]
+            s_sid = row["Service Name"]
             schema = row["Schema Names"]
             s_vendor = row["Source Engine"]
             # dbuid = values[6]
@@ -99,8 +120,10 @@ with open(schemalist,"r") as f:
             dsn = cx_Oracle.makedsn(s_server, s_port, service_name=s_sid)
             logger.info("Oracle : Connecting to DB {0}@{1}".format(s_sid,s_server))
             conn = cx_Oracle.connect(
-                user=oracleCredentials["username"],
-                password=oracleCredentials["password"],
+                # user=oracleCredentials["username"],
+                # password=oracleCredentials["password"],
+                user=row["Login"],
+                password=row["Password"],
                 dsn=dsn,
             )
             f = open(ORACLE_SQL, "r")
@@ -163,9 +186,11 @@ with open(schemalist,"r") as f:
                     + ";PORT="
                     + s_port.rstrip()
                     + ";UID="
-                    + msssqlCredentials["username"]
+                    # + msssqlCredentials["username"]
+                    + row["Login"]
                     + ";PWD="
-                    + msssqlCredentials["password"]
+                    # + msssqlCredentials["password"]
+                    + row["Password"]
                     + ";DATABASE="
                     + dbname.strip()
                 )

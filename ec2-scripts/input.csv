@@ -1,1 +1,1 @@
-Name,Description,Server IP,Port,Service Name,SID,Source Engine,Schema Names,Login,Password,Target Engines
+Name,Description,Secret Manager Key,Server IP,Port,Service Name,Database name,Source Engine,Schema Names,Use Windows Authentication,Login,Password,Use SSL,Trust store,Key store,SSL authentication,Target Engines

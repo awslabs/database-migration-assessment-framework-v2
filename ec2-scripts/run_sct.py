@@ -30,16 +30,11 @@ import psutil
 
 SCRIPTS_DIR = os.path.dirname(os.path.realpath(__file__))
 
-DMAF_SECRETS_NAME = os.environ.get("DMAF_SECRETS_NAME",None)
 DMAF_REGION = os.environ.get("DMAF_REGION","us-east-1")
 
 s3 = boto3.resource('s3')
 sm_client = boto3.client('secretsmanager',region_name=DMAF_REGION)
 
-response = sm_client.get_secret_value(
-    SecretId=DMAF_SECRETS_NAME
-)
-# print (response)
 drivers_path = os.path.join(SCRIPTS_DIR,"drivers")
 sql_drivers = glob.glob(drivers_path + "/mssql*jre11*.jar")
 sql_jar_path = ""
@@ -79,18 +74,7 @@ total_ram_gb = int (int(psutil.virtual_memory().total)/ 1024/1024/1024 )
 min_ram_for_sct = int(total_ram_gb * 25 /100)
 max_ram_for_sct = int(total_ram_gb * percentage_ram_for_sct /100)
 
-SCT_INPUT_CSV_HEADERS = ["Name","Description","Server IP","Port","Service Name","SID","Source Engine","Schema Names","Login","Password","Target Engines"]
-
-SecretString = json.loads(response.get("SecretString"))
-# print (SecretString)
-#username = SecretString.get("username")
-#password = SecretString.get("password")
-oracleCredentials = SecretString.get("ORACLE")
-msssqlCredentials = SecretString.get("MSSQL")
-sybaseCredntials = SecretString.get("SYBASE")
-db2Credntials = SecretString.get("DB2")
-#sql_jar_path = os.path.join(drivers_path, "sqljdbc42.jar")
-#ora_jar_path = os.path.join(drivers_path, "ora.jar")
+SCT_INPUT_CSV_HEADERS = ["Name","Description","Secret Manager Key","Server IP","Port","Service Name","Database name","Source Engine","Schema Names","Use Windows Authentication","Login","Password","Use SSL","Trust store","Key store","SSL authentication","Target Engines"]
 
 logs_dir = os.path.join(SCRIPTS_DIR,"logs")
 
@@ -105,21 +89,35 @@ def populateCredentialsToCSV(fileName):
     with open(fileName,"r") as f:
         reader = csv.DictReader(f)
         for row in reader:
-            if row["Source Engine"] == "ORACLE":
-                row["Login"] = oracleCredentials["username"]
-                row["Password"] = oracleCredentials["password"]
-            elif row["Source Engine"] == "MSSQL":
-                row["Login"] = msssqlCredentials["username"]
-                row["Password"] = msssqlCredentials["password"]
-            elif row["Source Engine"] == "SYBASE_ASE":
-                row["Login"] = sybaseCredntials["username"]
-                row["Password"] = sybaseCredntials["password"]
-            elif row["Source Engine"] == "DB2LUW":
-                row["Login"] = db2Credntials["username"]
-                row["Password"] = db2Credntials["password"]
-            newRows.append(row)
+            if row["Password"] != "" and row["Password"].strip() != "":
+                if row["Login"] != "" and row["Login"].strip() != "":
+                  print("Source Engine={0}, Login={1}, Password={2}".format(row["Source Engine"], row["Login"], row["Password"]))
+                  newRows.append(row)
+                  continue
+                else:
+                    print("Error: 'Login' is not defined in input.csv file. Please define both Login & Password fields. Row[Name]={0}".format(row["Name"]))
+            elif row["Secret Manager Key"] != "" and row["Secret Manager Key"].strip() != "":
+                print("Connecting to secrets manager to read username/password for secret manager key = {0}".format(row["Secret Manager Key"]))
+                try:
+                    response = sm_client.get_secret_value(SecretId=row["Secret Manager Key"])
+                    #print (response)
+                    SecretString = json.loads(response.get("SecretString"))
+                    row["Login"] = SecretString.get("username")
+                    row["Password"] = SecretString.get("password")
+                    if row["Server IP"] == "":
+                        row["Server IP"] = SecretString.get("host")
+                    if row["Port"] == "":
+                        row["Port"] = SecretString.get("port")
+                    if row["Database name"] == "":
+                        row["Database name"] = SecretString.get("dbname")
+                    print("Source Engine={0}, Login={1}, Password={2}, ServerIP={3}, Port={4}, DBName={5}".format(row["Source Engine"], 
+                            row["Login"], row["Password"], row["Server IP"], row["Port"], row["Database name"]))
+                    newRows.append(row)
+                except Exception as e:
+                    print("Error: connection to secrets manager failed. Error Msg = ", str(e))
+            elif row["Password"].strip() == "" and row["Secret Manager Key"].strip() == "":
+               print("Error: Both 'Password' and 'Secret Manager Key' fields are not defined in input.csv file. Row[Name]={0}".format(row["Name"]))
 
-    
     with open(sctInputFile,"w") as f:
         writer = csv.DictWriter(f,fieldnames=SCT_INPUT_CSV_HEADERS)
         writer.writeheader()
@@ -151,7 +149,7 @@ def main():
     
     #s3.download_file(s3inputbucket, 'Inputfile/input.csv', 'input.csv')
     inputfile=os.path.join(SCRIPTS_DIR,'input.csv')
-    populateCredentialsToCSV(inputfile)
+    #populateCredentialsToCSV(inputfile)
     batchscts="SetGlobalSettings \n" + \
         "   -settings: "+"'"+"[{"+"\n"+\
         "                       "+"\""+"name"+"\""+":"+"\""+"mssql_driver_file"+"\""+","+"\n"+\
@@ -179,7 +177,7 @@ def main():
         "CreateAggregatedReport \n" + \
         "   -directory: "+"'"+directory+"'"+"\n"+\
         "   -projectName: "+"'"+ProjectName +"'"+"\n"+\
-        "   -connectionsFile: "+"'"+sctInputFile+ "'"+"\n"+\
+        "   -connectionsFile: "+"'"+inputfile+ "'"+"\n"+\
         "/"
     # os.system("sudo chmod 777 "+directory)
 
@@ -205,7 +203,7 @@ def main():
             rcode.wait()
     except Exception as e:
         print(str(e))
-    os.remove(sctInputFile)
+    #os.remove(sctInputFile)
     uploads3(project_dir,ProjectName,s3inputbucket)
 if __name__ == "__main__":
     main()

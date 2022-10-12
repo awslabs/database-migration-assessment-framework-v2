@@ -133,6 +133,11 @@ def modifycsv(files):
                     else:
                         sourcedb = "SYBASE"
                     banner = rows[i + 1][0]
+                if "Source database:" in line[0] and (
+                    "MySQL" in rows[i + 1][0] or "distribution" in rows[i + 1][0]
+                ):
+                    sourcedb = "MYSQL"
+                    banner = rows[i + 1][0]
                     # print(host,database,schema,sourcedb,target)
         targetdb = fsplit[-1].strip()
 
@@ -148,7 +153,10 @@ def modifycsv(files):
             if database == "":
                 DB_SCHEMA = schema.split(".")
                 database = DB_SCHEMA[0].strip()
-                schema = DB_SCHEMA[-1].strip()
+                
+            DB_SCHEMA = schema.split(".")
+            schema = DB_SCHEMA[-1].strip()
+            
             host = line["Server IP address and port"].strip()
             break
 
