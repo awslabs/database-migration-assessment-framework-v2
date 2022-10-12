@@ -98,6 +98,7 @@ Resources:
             - cloudformation:CreateStackSet
             - cloudformation:DeleteChangeSet
             - cloudformation:ListChangeSets
+            - cloudformation:ListStackResources
             - cloudformation:ExecuteChangeSet
             - cloudformation:GetTemplateSummary
             - cloudformation:ListStacks
@@ -233,6 +234,7 @@ Resources:
                 - cloudformation:CreateStackSet
                 - cloudformation:DeleteChangeSet
                 - cloudformation:ListChangeSets
+                - cloudformation:ListStackResources
                 - cloudformation:ExecuteChangeSet
                 - cloudformation:GetTemplateSummary
                 - cloudformation:ListStacks
