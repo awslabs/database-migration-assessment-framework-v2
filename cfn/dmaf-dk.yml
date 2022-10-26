@@ -17,6 +17,18 @@ Parameters:
   outputbucket:
     Type: String
     Default: outputtest-bucket-name
+  sqsencryptionkey:
+    Type: String
+    Default: alias/aws/sqs
+  snsencryptionkey:
+    Type: String
+    Default: alias/aws/sns
+  s3bucketVersioning:
+    Type: String
+    Default: Suspended
+    AllowedValues:
+      - Enabled
+      - Suspended
   dmafinstallbucket:
     Description: >-
       This is the bucket where you stored lambda function zip files and jar
@@ -92,6 +104,9 @@ Metadata:
           - outputbucket
           - athenadatabase
           - Deploymenttype
+          - sqsencryptionkey
+          - snsencryptionkey
+          - s3bucketVersioning
       - 
         Label: 
           default: "Parameters for Automated Deployment Type"
@@ -107,7 +122,13 @@ Metadata:
           - EC2alarmsnsTopicName
           - EC2alarmsnssubscriptionemail
     ParameterLabels: 
-      VPC: 
+      sqsencryptionkey: 
+        default: "AWS KMS key ID to store messages in encrypted form in Amazon SNS topics"
+      snsencryptionkey: 
+        default: "AWS KMS key ID to store messages in encrypted form in Amazon SQS Queue"
+      s3bucketVersioning:
+        default: "Enable Versioning for S3 bucket"
+      VPC:
         default: "Which VPC should this be deployed to?"
       dmafinstallbucket:
         default: "DMAF Source Code Bucket"
@@ -271,6 +292,7 @@ Resources:
       QueueName: !Sub "csvfilequeue-${AWS::StackName}"
       ReceiveMessageWaitTimeSeconds: 2
       VisibilityTimeout: 900
+      KmsMasterKeyId: !Ref sqsencryptionkey
   csvSQSPolicy:
     Type: 'AWS::SQS::QueuePolicy'
     Properties:
@@ -303,6 +325,7 @@ Resources:
   snstopic:
     Type: 'AWS::SNS::Topic'
     Properties:
+      KmsMasterKeyId: !Ref snsencryptionkey
       Tags:
         - Key: TOOL
           Value: !Ref TOOL
@@ -337,6 +360,8 @@ Resources:
   s3inputbucket:
     Type: 'AWS::S3::Bucket'
     Properties:
+      VersioningConfiguration:
+        Status: !Ref s3bucketVersioning
       Tags:
         - Key: TOOL
           Value: !Ref TOOL
@@ -353,6 +378,8 @@ Resources:
   s3outputbucket:
     Type: 'AWS::S3::Bucket'
     Properties:
+      VersioningConfiguration:
+        Status: !Ref s3bucketVersioning
       Tags:
         - Key: TOOL
           Value: !Ref TOOL
