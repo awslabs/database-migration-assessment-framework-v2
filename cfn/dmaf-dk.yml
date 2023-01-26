@@ -23,6 +23,8 @@ Parameters:
   snsencryptionkey:
     Type: String
     Default: alias/aws/sns
+  s3bucketKMSKey:
+    Type: String
   s3bucketVersioning:
     Type: String
     Default: Suspended
@@ -106,6 +108,7 @@ Metadata:
           - Deploymenttype
           - sqsencryptionkey
           - snsencryptionkey
+          - s3bucketKMSKey
           - s3bucketVersioning
       - 
         Label: 
@@ -126,6 +129,8 @@ Metadata:
         default: "AWS KMS key ID to store messages in encrypted form in Amazon SNS topics"
       snsencryptionkey: 
         default: "AWS KMS key ID to store messages in encrypted form in Amazon SQS Queue"
+      s3bucketKMSKey:
+        default: KMS key ARN for S3 Bucket
       s3bucketVersioning:
         default: "Enable Versioning for S3 bucket"
       VPC:
@@ -275,6 +280,15 @@ Resources:
                   - secretsmanager:DescribeSecret
                   - secretsmanager:ListSecrets
                 Resource: "*"
+              - Effect: Allow
+                Action:
+                  - kms:Encrypt
+                  - kms:Decrypt
+                  - kms:ReEncrypt*
+                  - kms:GenerateDataKey*
+                  - kms:DescribeKey
+                Resource: 
+                  - !Ref s3bucketKMSKey
   ISProfile:
     Condition: isAutomated
     Type: 'AWS::IAM::InstanceProfile'
@@ -366,6 +380,12 @@ Resources:
         - Key: TOOL
           Value: !Ref TOOL
       BucketName: !Sub '${sctinputbucket}'
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: 'aws:kms'
+              KMSMasterKeyID: !Ref s3bucketKMSKey
+            BucketKeyEnabled: true
       NotificationConfiguration:
         TopicConfigurations:
           - Event: 's3:ObjectCreated:*'
@@ -378,6 +398,12 @@ Resources:
   s3outputbucket:
     Type: 'AWS::S3::Bucket'
     Properties:
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: 'aws:kms'
+              KMSMasterKeyID: !Ref s3bucketKMSKey
+            BucketKeyEnabled: true
       VersioningConfiguration:
         Status: !Ref s3bucketVersioning
       Tags:
@@ -436,6 +462,15 @@ Resources:
           PolicyDocument:
             Version: 2012-10-17
             Statement:
+              - Effect: Allow
+                Action:
+                  - kms:Encrypt
+                  - kms:Decrypt
+                  - kms:ReEncrypt*
+                  - kms:GenerateDataKey*
+                  - kms:DescribeKey
+                Resource: 
+                  - !Ref s3bucketKMSKey
               - Effect: Allow
                 Action:
                   - 'logs:CreateLogGroup'
