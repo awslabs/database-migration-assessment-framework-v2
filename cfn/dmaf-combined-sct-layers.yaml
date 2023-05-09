@@ -1,0 +1,1123 @@
+AWSTemplateFormatVersion: 2010-09-09
+Parameters:
+  TOOL:
+    Type: String
+    Description: >-
+      This will be used in tags for all resources created using this template.
+    Default: DMAF
+  Deploymenttype:
+    Type: String
+    AllowedValues:
+      - Automated
+      - Manual
+    Default: Automated
+  sctinputbucket:
+    Type: String
+    Default: test-bucket-name
+  outputbucket:
+    Type: String
+    Default: outputtest-bucket-name
+  # Encryption for SQS and SNS topics   
+  sqsencryptionkey:
+    Type: String
+    Default: alias/aws/sqs
+  s3bucketKMSKey:
+    Type: String
+  s3bucketVersioning:
+    Type: String
+    Default: Suspended
+    AllowedValues:
+      - Enabled
+      - Suspended
+  dmafinstallbucket:
+    Description: >-
+      This is the bucket where you stored lambda function zip files and jar
+      files
+    Type: String
+    Default: lambdatest-bucket-name
+  athenadatabase:
+    Description: >-
+      Athena Database Name
+    Type: String
+    Default: athenadb
+  ImageId:
+    Type: 'AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>'
+    Default: '/aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2'
+  # ImageId:
+  #   Description: >-
+  #     Image ID for base EC2 instance(This is not final AMI).You have to change
+  #     AMI-ID depends on region and always use Amazon Linux AMI.
+  #   Type: 'AWS::EC2::Image::Id'
+  #   Default: ami-06041b717a01b029d
+  VPC:
+    Description: vpc
+    Type: 'AWS::EC2::VPC::Id'
+  InstanceType:
+    Description: The instance family and type for the EC2 instance
+    Type: String
+    Default: r5.large
+    AllowedValues:
+      - r5.large  
+      - r5.xlarge
+      - r5.2xlarge
+  AutoScalingSize:
+    Description: 'Number of instances to collect sct reports '
+    Type: String
+    Default: 1
+  PSubnet1:
+    Description: Enter your first subnet id. *This is a required field.
+    Type: 'AWS::EC2::Subnet::Id'
+  PSubnet2:
+    Description: Enter your second subnet id. *This is a required field.
+    Type: 'AWS::EC2::Subnet::Id'
+  SecurityGroups:
+    Description: The security group. *This is a required field.
+    Type: 'List<AWS::EC2::SecurityGroup::Id>'
+  KeyName:
+    Description: Key Pair name. *This is a required field.
+    Type: 'AWS::EC2::KeyPair::KeyName'
+  EC2alarmsnsTopicName:
+    Type: String
+    Description: SNS Topic Name
+    Default: DMAFEC2alarm
+  EC2alarmsnssubscriptionemail:
+    Type: String
+    Description: Email-ID for EC2 alert notifications. A subscription Confirmation email will be sent.
+    AllowedPattern: '[^\s@]+@[^\s@]+\.[^\s@]+'
+    ConstraintDescription: You should enter a valid email.
+    Default: dmaf@email.com
+  EnvironmentName:
+    Type: String
+    Default: dev
+    Description: >-
+      The environment name, used for locating outputs from the prerequisite
+      stacks
+  QSPrincipalType:
+    Type: String
+    Default: user
+    AllowedValues:
+      - user
+      - group
+    Description: Choose QS user or QS group to be used
+  QSPrincipalName:
+    Type: String
+    Default: quicksight-user-or-group-here
+    Description: >-
+      The quicksight name of user or group
+  QSPrincipalRegion:
+    Type: String
+    Default: us-east-1
+    Description: >-
+      The quicksight user region, used for locating outputs from the
+      prerequisite stacks
+  ProjectTagKey:
+    Description: The EC2 tag key that identifies this as a target for deployments.
+    Type: String
+    Default: TOOL
+    AllowedPattern: '[\x20-\x7E]*'
+    ConstraintDescription: Can contain only ASCII characters.
+  ProjectTagValue:
+    Description: The EC2 tag value that identifies this as a target for deployments.
+    Type: String
+    Default: DMAF
+    AllowedPattern: '[\x20-\x7E]*'
+    ConstraintDescription: Can contain only ASCII characters.
+  AwsDataCatalogName:
+    Description: >-
+      The AwsDataCatalogName value that identifies this as a target for
+      deployments.
+    Type: String
+    Default: AwsDataCatalog
+  AthenaWorkGroup:
+    Type: String
+    Default: primary
+    Description: The athena workgroup name, used for locating outputs from the
+                 prerequisite stacks
+  QSDataSetImportModeVWDatamart:
+    Type: String
+    Default: SPICE
+    Description: Dataset import mode.
+    AllowedValues:
+      - SPICE
+      - DIRECT_QUERY
+  QSDataSetImportModeVWUrldocumentation:
+    Type: String
+    Default: SPICE
+    Description: Dataset import mode.
+    AllowedValues:
+      - SPICE
+      - DIRECT_QUERY
+  QSTemplateName:
+    Type: String
+    Default: dmaf_v2_1
+    Description: The quicksight template name, used for locating outputs from the
+                 prerequisite stacks
+  QSDashboardName:
+    Type: String
+    Default: dmaf_v2_1
+    Description: The dashboard name, used for locating outputs from the
+                 prerequisite stacks
+  QSSourceTemplateArn:
+    Type: String
+    Default: arn:aws:quicksight:ap-south-1:254711704212:template/dmaf-oraclemaint-template-dmaf_v2_1-254711704212
+    Description: The quicksight source template arn, used for locating outputs from the
+                 prerequisite stacks
+Conditions:
+  isAutomated: !Equals 
+    - !Ref Deploymenttype
+    - Automated
+  isManual: !Equals 
+    - !Ref Deploymenttype
+    - Manual
+Metadata: 
+  AWS::CloudFormation::Interface: 
+    ParameterGroups: 
+      - 
+        Label: 
+          default: "Required Parameters"
+        Parameters: 
+          - TOOL
+          - dmafinstallbucket
+          - sctinputbucket
+          - outputbucket
+          - athenadatabase
+          - Deploymenttype
+          # Encryption for SQS and SNS topics 
+          - sqsencryptionkey
+          - s3bucketKMSKey 
+          - s3bucketVersioning
+
+      - 
+        Label: 
+          default: "Parameters for Automated Deployment Type"
+        Parameters:
+          - ImageId
+          - VPC
+          - InstanceType
+          - AutoScalingSize
+          - PSubnet1
+          - PSubnet2
+          - SecurityGroups
+          - KeyName
+          - EC2alarmsnsTopicName
+          - EC2alarmsnssubscriptionemail
+    ParameterLabels: 
+      # Encryption for SQS and SNS topics
+      sqsencryptionkey: 
+        default: "AWS KMS key ID to store messages in encrypted form in Amazon SNS topics"
+      s3bucketKMSKey:
+        default: KMS key ARN for S3 Bucket
+      s3bucketVersioning:
+        default: "Enable Versioning for S3 bucket"
+      VPC: 
+        default: "Which VPC should this be deployed to?"
+      dmafinstallbucket:
+        default: "DMAF Source Code Bucket"
+      sctinputbucket:
+        default: "Bucket to upload SCT Reports"
+      outputbucket:
+        default: "Bucket to upload Processed SCT Reports"
+      athenadatabase:
+        default: "Athena Database Name"
+      Deploymenttype:
+        default: "Deployment Type"
+      ImageId:
+        default: "AMI ID"
+      InstanceType:
+        default: "EC2 Instance Type"
+      AutoScalingSize:
+        default: "Desired Count for Auto Scalling Group"
+      PSubnet1:
+        default: "Private Subnet 1"
+      PSubnet2:
+        default: "Private Subnet 2"
+      SecurityGroups:
+        default: "Security Groups"
+      KeyName:
+        default: "EC2 KeyPair Name"
+      EC2alarmsnsTopicName:
+        default: "SNS Topic for EC2 alarm"
+      EC2alarmsnssubscriptionemail:
+        default: "Email to send SNS Notifcations for EC2 alarm"      
+Resources:
+  LaunchConfig:
+    Condition: isAutomated
+    Type: 'AWS::AutoScaling::LaunchConfiguration'
+    Properties:
+      KeyName: !Ref KeyName
+      ImageId: !Ref ImageId
+      SecurityGroups: !Ref SecurityGroups
+      InstanceType: !Ref InstanceType
+      IamInstanceProfile: !Ref ISProfile
+      BlockDeviceMappings:
+        - DeviceName: /dev/xvda
+          Ebs:
+            VolumeSize: 50
+      UserData: 
+          Fn::Base64: 
+            Fn::Sub: |
+              #!/bin/bash -xe
+              mkdir -p /home/ec2-user/dmafv2
+              mkdir -p /home/ec2-user/dmafv2/drivers
+              aws s3 cp s3://${dmafinstallbucket}/dmafv2.zip /home/ec2-user/dmafv2.zip --sse
+              unzip /home/ec2-user/dmafv2.zip -d /home/ec2-user/dmafv2/
+              aws s3 sync s3://${dmafinstallbucket}/drivers /home/ec2-user/dmafv2/drivers --exclude "*" --include "*.jar" --sse
+              aws s3 cp s3://${dmafinstallbucket}/dmafv2.zip /home/ec2-user/dmafv2.zip --sse
+              # export secret name
+              cat > /etc/profile.d/load_env.sh << 'EOF'
+              export DMAF_REGION=${AWS::Region}
+              export INPUT_BUCKET=${sctinputbucket}
+              export OUTPUT_BUCKET=${s3outputbucket}
+              export LD_LIBRARY_PATH=/opt/oracle/libs
+              EOF
+              yum install java gcc-c++ python3-devel mesa-libGL mesa-libGL-devel -y
+              yum install unixODBC-devel -y
+              pip3 install boto3 pyodbc cx_Oracle psutil
+              curl https://packages.microsoft.com/config/rhel/8/prod.repo > /etc/yum.repos.d/msprod.repo
+              yum remove mssql-tools unixODBC-utf16-devel -y   
+              ACCEPT_EULA=Y yum install -y msodbcsql17
+              # chown -R ec2-user /home/ec2-user/dmafv2
+              # sudo -u ec2-user pip3 install boto3 --user
+              # wget https://d211wdu1froga6.cloudfront.net/builds/1.0/655/Fedora/aws-schema-conversion-tool-1.0.zip
+              # unzip aws-schema-conversion-tool-1.0.zip
+              wget https://s3.amazonaws.com/publicsctdownload/Fedora/aws-schema-conversion-tool-1.0.latest.zip
+              unzip aws-schema-conversion-tool-1.0.latest.zip
+              yum install aws-schema-conversion-tool-*.rpm -y  
+              mkdir -p /opt/oracle/libs
+              wget https://download.oracle.com/otn_software/linux/instantclient/214000/instantclient-basiclite-linux.x64-21.4.0.0.0dbru.zip
+              unzip instantclient*
+              cp -r instantclient*/* /opt/oracle/libs
+              cp -r instantclient*/*.jar /home/ec2-user/dmafv2/drivers/
+              curl -L https://go.microsoft.com/fwlink/?linkid=2168495 --output mssql-libs.zip
+              unzip mssql-libs.zip
+              cp -r sqljdbc*/*.jar /home/ec2-user/dmafv2/drivers/
+              chown -R ec2-user /home/ec2-user/dmafv2
+              mkdir tempcloudwatch
+              cd tempcloudwatch
+              yum install wget -y
+              yum install unzip -y
+              wget https://s3.amazonaws.com/amazoncloudwatch-agent/linux/amd64/latest/AmazonCloudWatchAgent.zip
+              unzip AmazonCloudWatchAgent.zip
+              sudo ./install.sh
+              aws s3 cp s3://${dmafinstallbucket}/cloudwatchagent-linux-config.json config.json
+              # wget https://YOUR-PUBLIC-URL-HERE-WITH-CONFIG-FILE -O config.json
+              sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -c file:config.json -s
+
+  MyServerGroup:
+    Condition: isAutomated
+    Type: 'AWS::AutoScaling::AutoScalingGroup'
+    Properties:
+      VPCZoneIdentifier:
+        - !Ref PSubnet1
+        - !Ref PSubnet2
+      Tags:
+        - Key: TOOL
+          Value: !Ref TOOL
+          PropagateAtLaunch: true
+        - Key: Name
+          Value: dmaf-instance
+          PropagateAtLaunch: true
+        - Key: Env
+          Value: Test
+          PropagateAtLaunch: true
+      LaunchConfigurationName: !Ref LaunchConfig
+      MinSize: '1'
+      MaxSize: '15'
+      DesiredCapacity: !Ref AutoScalingSize
+  DmafInstancesRole:
+    Condition: isAutomated
+    Type: 'AWS::IAM::Role'
+    Properties:
+      Tags:
+        - Key: TOOL
+          Value: !Ref TOOL
+      ManagedPolicyArns:
+        - 'arn:aws:iam::aws:policy/AmazonS3FullAccess'
+        - 'arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore'
+        - 'arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy'
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - ec2.amazonaws.com
+            Action:
+              - 'sts:AssumeRole'
+      Path: /
+      Policies:
+        - PolicyName: DMAFS3AccessPolicy
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - kms:Encrypt
+                  - kms:Decrypt
+                  - kms:ReEncrypt*
+                  - kms:GenerateDataKey*
+                  - kms:DescribeKey
+                Resource: 
+                  - !Ref s3bucketKMSKey
+              - Effect: Allow
+                Action: 
+                - s3:GetBucketTagging
+                - s3:DeleteObjectVersion
+                - s3:GetObjectVersionTagging
+                - s3:ListBucketVersions
+                - s3:GetBucketLogging
+                - s3:CreateBucket
+                - s3:ListBucket
+                - s3:GetObjectVersionAttributes
+                - s3:GetBucketPolicy
+                - s3:GetObjectAcl
+                - s3:DeleteBucketWebsite
+                - s3:PutBucketTagging
+                - s3:PutBucketAcl
+                - s3:GetObjectTagging
+                - s3:PutObjectTagging
+                - s3:DeleteObject
+                - s3:DeleteBucket
+                - s3:PutBucketVersioning
+                - s3:PutObjectAcl
+                - s3:DeleteObjectTagging
+                - s3:GetBucketPolicyStatus
+                - s3:PutBucketPublicAccessBlock
+                - s3:GetObjectRetention
+                - s3:GetBucketWebsite
+                - s3:GetObjectAttributes
+                - s3:PutObjectVersionTagging
+                - s3:DeleteObjectVersionTagging
+                - s3:GetBucketVersioning
+                - s3:PutBucketCORS
+                - s3:GetBucketAcl
+                - s3:GetBucketNotification
+                - s3:DeleteBucketPolicy
+                - s3:PutObject
+                - s3:GetObject
+                - s3:PutBucketNotification
+                - s3:PutBucketWebsite
+                - s3:PutBucketLogging
+                - s3:GetBucketCORS
+                - s3:PutBucketPolicy
+                - s3:GetBucketLocation
+                - s3:GetObjectVersion
+                - s3:ObjectCreated
+                Resource: 
+                - !Sub arn:aws:s3:::${sctinputbucket}"
+                - !Sub arn:aws:s3:::${sctinputbucket}/*"
+  ISProfile:
+    Condition: isAutomated
+    Type: 'AWS::IAM::InstanceProfile'
+    Properties:
+      Path: /
+      Roles:
+        - !Ref DmafInstancesRole
+  csvqueue:
+    Type: 'AWS::SQS::Queue'
+    Properties:
+      Tags:
+        - Key: TOOL
+          Value: !Ref TOOL
+      DelaySeconds: 0
+      QueueName: !Sub "csvfilequeue-${AWS::StackName}"
+      ReceiveMessageWaitTimeSeconds: 2
+      VisibilityTimeout: 900
+      # Encryption for SQS and SNS topics 
+      KmsMasterKeyId: !Ref sqsencryptionkey
+  csvSQSPolicy:
+    Type: 'AWS::SQS::QueuePolicy'
+    Properties:
+      Queues:
+        - !Ref csvqueue
+      PolicyDocument:
+        Statement:
+          - Action:
+              - "SQS:SendMessage" 
+              - "SQS:ReceiveMessage"
+            Effect: Allow
+            Resource: !GetAtt 
+              - csvqueue
+              - Arn
+            Principal:
+              AWS: !Sub 'arn:aws:iam::${AWS::AccountId}:root'
+              Service: sns.amazonaws.com
+  csvqueuetolambda:
+    Type: 'AWS::Lambda::EventSourceMapping'
+    Properties:
+      BatchSize: 1
+      MaximumBatchingWindowInSeconds: 2
+      Enabled: 'true'
+      EventSourceArn: !GetAtt 
+        - csvqueue
+        - Arn
+      FunctionName: !GetAtt 
+        - asyncmodifycsvfn
+        - Arn
+
+  snstopic:
+    Type: 'AWS::SNS::Topic'
+    Properties:
+      # Encryption for SQS and SNS topics 
+      KmsMasterKeyId: !Ref snsencryptionkey
+      Tags:
+        - Key: TOOL
+          Value: !Ref TOOL
+      TopicName: !Sub "zipfilenotification-${AWS::StackName}"
+
+  sctsnstopic:
+    Type: 'AWS::SNS::Topic'
+    Properties:
+      # Encryption for SQS and SNS topics 
+      KmsMasterKeyId: !Ref snsencryptionkey
+      Tags:
+        - Key: TOOL
+          Value: !Ref TOOL
+      TopicName: !Sub "sctvalidation-${AWS::StackName}"
+
+###########
+
+  snsencryptionkey:
+    Type: 'AWS::KMS::Key'
+    Properties:
+      Description: Customer manager key with custom key policy that has access to s3
+      EnableKeyRotation: true
+      KeyPolicy:
+        Version: 2012-10-17
+        Id: key-consolepolicy-3
+        Statement:
+          - Sid: Enable IAM User Permissions
+            Effect: Allow
+            Principal:
+              AWS: 
+                - !Sub 'arn:aws:iam::${AWS::AccountId}:root'
+            Action: 
+              - kms:*
+            Resource: "*"
+          - Sid: Allow administration of the key
+            Effect: Allow
+            Principal:
+              AWS: 
+                - !Sub 'arn:aws:iam::${AWS::AccountId}:root'
+            Action:
+              - kms:Create*
+              - kms:Describe*
+              - kms:Enable*
+              - kms:List*
+              - kms:Put*
+              - kms:Update*
+              - kms:Revoke*
+              - kms:Disable*
+              - kms:Get*
+              - kms:Delete*
+              - kms:ScheduleKeyDeletion
+              - kms:CancelKeyDeletion
+            Resource: '*'
+          - Sid: Allow use of the key
+            Effect: Allow
+            Principal:
+              AWS: 
+                - !Sub 'arn:aws:iam::${AWS::AccountId}:root'
+            Action:
+              - kms:DescribeKey
+              - kms:Encrypt
+              - kms:Decrypt
+              - kms:ReEncrypt*
+              - kms:GenerateDataKey
+              - kms:GenerateDataKeyWithoutPlaintext
+            Resource: '*'
+          - Sid: Allow attachment of persistent resources
+            Effect: Allow
+            Principal:
+              AWS: 
+                - !Sub 'arn:aws:iam::${AWS::AccountId}:root'
+            Action:
+              - kms:CreateGrant
+              - kms:ListGrants
+              - kms:RevokeGrant
+            Resource: '*'    
+            Condition:
+              Bool:
+                'kms:GrantIsForAWSResource': true
+          - Sid: Allow use of the S3 key
+            Effect: Allow
+            Principal:
+              Service: 
+                - s3.amazonaws.com
+            Action:
+              - kms:Encrypt
+              - kms:Decrypt
+              - kms:ReEncrypt*
+              - kms:GenerateDataKey*
+              - kms:DescribeKey
+            Resource: '*'    
+        # KeySpec: String
+        # KeyUsage: String
+        # MultiRegion: true
+        # PendingWindowInDays: 30
+
+  snstopicpolicy:
+    Type: 'AWS::SNS::TopicPolicy'
+    Properties:
+      PolicyDocument:
+        Statement:
+          - Effect: Allow
+            Principal:
+              AWS: !Sub 'arn:aws:iam::${AWS::AccountId}:root'
+              Service: s3.amazonaws.com
+            Action:
+              - 'SNS:GetTopicAttributes'
+              - 'SNS:SetTopicAttributes'
+              - 'SNS:AddPermission'
+              - 'SNS:RemovePermission'
+              - 'SNS:DeleteTopic'
+              - 'SNS:Subscribe'
+              - 'SNS:ListSubscriptionsByTopic'
+              - 'SNS:Publish'
+              - 'SNS:Receive'
+            Resource: !Ref snstopic
+            Condition:
+              StringEquals:
+                'aws:SourceAccount': !Sub '${AWS::AccountId}'
+              ArnLike:
+                'aws:SourceArn': !Sub 'arn:aws:s3:::${sctinputbucket}'
+      Topics:
+        - !Ref snstopic
+        - !Ref sctsnstopic
+  s3inputbucket:
+    Type: 'AWS::S3::Bucket'
+    Properties:
+      # Encryption for SQS and SNS topics 
+      VersioningConfiguration:
+        Status: !Ref s3bucketVersioning
+      Tags:
+        - Key: TOOL
+          Value: !Ref TOOL
+      BucketName: !Sub '${sctinputbucket}'
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: 'aws:kms'
+              KMSMasterKeyID: !Ref s3bucketKMSKey
+            BucketKeyEnabled: true
+      NotificationConfiguration:
+        TopicConfigurations:
+          - Event: 's3:ObjectCreated:*'
+            Filter:
+              S3Key:
+                Rules:
+                  - Name: suffix
+                    Value: .zip
+            Topic: !Ref snstopic
+  s3outputbucket:
+    Type: 'AWS::S3::Bucket'
+    Properties:
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: 'aws:kms'
+              KMSMasterKeyID: !Ref s3bucketKMSKey
+            BucketKeyEnabled: true
+      # Encryption for SQS and SNS topics 
+      VersioningConfiguration:
+        Status: !Ref s3bucketVersioning
+      Tags:
+        - Key: TOOL
+          Value: !Ref TOOL
+      BucketName: !Sub '${outputbucket}'
+  modifycsvfn:
+    Type: 'AWS::Lambda::Function'
+    Properties:
+      Tags:
+        - Key: TOOL
+          Value: !Ref TOOL
+      Code:
+        S3Bucket: !Sub '${dmafinstallbucket}'
+        S3Key: modifycsvfiles.zip
+      Description: main lambda function that fans out to modify keys in csv files
+      Environment:
+        Variables:
+          inbucket: !Ref s3inputbucket
+          csvqueue: !Ref csvqueue
+          snstopictounsubscribe: !Ref snstopic
+          outbucket: !Ref s3outputbucket
+      FunctionName: !Sub "modifycsvfiles-${AWS::StackName}"
+      Handler: lambda_function.lambda_handler
+      MemorySize: 512
+      Role: !GetAtt 
+        - LambdaExecutionRole
+        - Arn
+      Runtime: python3.7
+      Timeout: 900
+  snspermission:
+    Type: 'AWS::Lambda::Permission'
+    Properties:
+      FunctionName: !Ref modifycsvfn
+      Action: 'lambda:InvokeFunction'
+      Principal: sns.amazonaws.com
+      SourceArn: !Ref sctsnstopic
+  sctsnspermission:
+    Type: 'AWS::Lambda::Permission'
+    Properties:
+      FunctionName: !Ref sctvalidationfn
+      Action: 'lambda:InvokeFunction'
+      Principal: sns.amazonaws.com
+      SourceArn: !Ref snstopic
+  LambdaExecutionRole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      Tags:
+        - Key: TOOL
+          Value: !Ref TOOL
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - 'sts:AssumeRole'
+      Path: /
+      Policies:
+        - PolicyName: root
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - kms:Encrypt
+                  - kms:Decrypt
+                  - kms:ReEncrypt*
+                  - kms:GenerateDataKey*
+                  - kms:DescribeKey
+                Resource: 
+                  - !Ref s3bucketKMSKey
+              - Effect: Allow
+                Action:
+                  - 'logs:CreateLogGroup'
+                  - 'logs:CreateLogStream'
+                  - 'logs:PutLogEvents'
+                  - 's3:PutObject'
+                  - 's3:GetBucketLocation'
+                  - 's3:GetBucketVersioning'
+                  - 's3:GetObject'
+                  - 's3:ListBucket'
+                  - 's3:ListBucket'
+                  - 's3:DeleteObject'
+                  - 'sns:ListSubscriptionsByTopic'
+                  - 'sns:Subscribe'
+                  - 'sns:Unsubscribe'
+                  - 'sns:Publish'
+                  - 'sqs:ReceiveMessage'
+                  - 'sqs:DeleteMessage'
+                  - 'sqs:GetQueueUrl'
+                  - 'sqs:SendMessage'
+                  - 'sqs:GetQueueAttributes'
+                  - 'events:EnableRule'
+                  - 'events:DisableRule'
+                  - 'lambda:InvokeFunction'
+                  - 'athena:GetQueryExecution'
+                  - 'athena:StartQueryExecution'
+                  - 'athena:GetQueryResults'
+                  - 'glue:GetDatabase'
+                  - 'glue:GetTable'
+                  - 'glue:CreateTable'
+                  - 'kms:GenerateDataKey'
+                  - 'kms:Decrypt'
+                Resource:
+                  - !Sub arn:aws:s3:::${sctinputbucket}
+                  - !Sub arn:aws:s3:::${sctinputbucket}/*
+                  - !Sub arn:aws:s3:::${outputbucket}
+                  - !Sub arn:aws:s3:::${outputbucket}/*
+                  - !Sub arn:aws:s3:::${dmafinstallbucket}
+                  - !Sub arn:aws:s3:::${dmafinstallbucket}/*
+                  - !Sub arn:aws:sqs:*:${AWS::AccountId}:*
+                  - !Sub arn:aws:sns:*:${AWS::AccountId}:*
+                  - !Sub arn:aws:kms:*:${AWS::AccountId}:key/*
+                  - !Sub arn:aws:athena:*:${AWS::AccountId}:workgroup/*
+                  - !Sub arn:aws:athena:*:${AWS::AccountId}:workgroup/primary/*
+                  - !Sub arn:aws:glue:*:${AWS::AccountId}:catalog
+                  - !Sub arn:aws:glue:*:${AWS::AccountId}:database/*
+                  - !Sub arn:aws:glue:*:${AWS::AccountId}:table/*
+                  - !Sub arn:aws:lambda:*:${AWS::AccountId}:*
+                  - !Sub arn:aws:events:*:${AWS::AccountId}:rule/*
+                  - !Sub arn:aws:events:*:${AWS::AccountId}:rule/[*/]*
+                  - !Sub arn:aws:logs:*:${AWS::AccountId}:log-group:*:*
+  snstolambdasubscription:
+    Type: 'AWS::SNS::Subscription'
+    Properties:
+      Endpoint: !GetAtt 
+        - sctvalidationfn
+        - Arn
+      Protocol: lambda
+      TopicArn: !Ref snstopic
+  # New SNS Subscription
+  snstosctlambdasubscription:
+    Type: 'AWS::SNS::Subscription'
+    Properties:
+      Endpoint: !GetAtt 
+        - modifycsvfn
+        - Arn
+      Protocol: lambda
+      TopicArn: !Ref sctsnstopic
+  MySCTLayer:
+    Type: AWS::Lambda::LayerVersion
+    Properties:
+      CompatibleRuntimes:
+        - python3.9
+      Content:
+        S3Bucket: !Sub '${dmafinstallbucket}'
+        S3Key: sct-layers-python3.9.zip
+      Description: My layer
+      LayerName: my-layer
+      LicenseInfo: MIT
+  # New function added
+  sctvalidationfn:
+    Type: AWS::Lambda::Function
+    Properties:
+      Tags:
+        - Key: TOOL
+          Value: !Ref TOOL
+      Code:
+        S3Bucket: !Sub '${dmafinstallbucket}'
+        S3Key: sct-file-check.zip
+      Layers:
+        - !Ref MySCTLayer
+      Role: !GetAtt 
+        - LambdaExecutionRole
+        - Arn
+      Description: this lambda function fans out and modifies csv files concurrently
+      Environment:
+        Variables:
+          inbucket: !Ref s3inputbucket
+          snstopictopublish: !Ref sctsnstopic
+          region: !Ref 'AWS::Region'
+      FunctionName: !Sub "sctfilecheckvalidation-${AWS::StackName}"      
+      Handler: app.lambda_handler
+      Runtime: python3.9
+      Timeout: 900
+      MemorySize: 1024
+  asyncmodifycsvfn:
+    Type: 'AWS::Lambda::Function'
+    Properties:
+      Tags:
+        - Key: TOOL
+          Value: !Ref TOOL
+      Code:
+        S3Bucket: !Sub '${dmafinstallbucket}'
+        S3Key: asyncmodifycsvfiles.zip
+      Description: this lambda function fans out and modifies csv files concurrently
+      Environment:
+        Variables:
+          inbucket: !Ref s3inputbucket
+          outbucket: !Ref s3outputbucket
+          cweventname: !Ref sqscheckevent
+          region: !Ref 'AWS::Region'
+      FunctionName: !Sub "asyncmodifycsvfiles-${AWS::StackName}"
+      Handler: lambda_function.lambda_handler
+      MemorySize: 1024
+      Role: !GetAtt 
+        - LambdaExecutionRole
+        - Arn
+      Runtime: python3.7
+      Timeout: 900
+  sqscheckevent:
+    Type: 'AWS::Events::Rule'
+    Properties:
+      Description: ScheduledRule
+      ScheduleExpression: rate(5 minutes)
+      State: DISABLED
+      Targets:
+        - Arn: !Sub 'arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:sqspoll'
+          Id: TargetFunctionV1
+  PermissionForEventsToInvokeLambda:
+    Type: 'AWS::Lambda::Permission'
+    Properties:
+      FunctionName: !Ref sqspollfn
+      Action: 'lambda:InvokeFunction'
+      Principal: events.amazonaws.com
+      SourceArn: !GetAtt 
+        - sqscheckevent
+        - Arn
+  sqspollfn:
+    Type: 'AWS::Lambda::Function'
+    Properties:
+      Tags:
+        - Key: TOOL
+          Value: !Ref TOOL
+      Code:
+        S3Bucket: !Sub '${dmafinstallbucket}'
+        S3Key: sqspoll.zip
+      Description: this lambda function polls sqs function
+      Environment:
+        Variables:
+          csvqueue: !Ref csvqueue
+          sqscheckevent: !Ref sqscheckevent
+          timecalculationfn: !Ref timecalculationfn
+      FunctionName: !Sub "sqspoll-${AWS::StackName}"
+      Handler: lambda_function.lambda_handler
+      MemorySize: 512
+      Role: !GetAtt 
+        - LambdaExecutionRole
+        - Arn
+      Runtime: python3.7
+      Timeout: 900
+  timecalculationfn:
+    Type: 'AWS::Lambda::Function'
+    Properties:
+      Tags:
+        - Key: TOOL
+          Value: !Ref TOOL
+      Code:
+        S3Bucket: !Sub '${dmafinstallbucket}'
+        S3Key: timecalculation.zip
+      Description: this lambda function caclulates time estimates
+      Environment:
+        Variables:
+          snstopic: !Ref snstopic
+          outputbucket: !Ref s3outputbucket
+          modifycsvfilefn: !Ref modifycsvfn
+          modifycsvfilefnarn: !GetAtt 
+            - modifycsvfn
+            - Arn
+          timecalculationfn: timecalculation
+          athenadb: !Ref athenadb
+      FunctionName: !Sub "timecalculation-${AWS::StackName}" 
+      Handler: lambda_function.lambda_handler
+      MemorySize: 512
+      Role: !GetAtt 
+        - LambdaExecutionRole
+        - Arn
+      Runtime: python3.7
+      Timeout: 900
+  athenadb:
+    Type: 'AWS::Glue::Database'
+    Properties:
+      CatalogId: !Ref 'AWS::AccountId'
+      DatabaseInput:
+        Name: !Sub '${athenadatabase}'
+        Description: athena db
+  athenacreationfn:
+    Type: 'AWS::Lambda::Function'
+    DependsOn: 
+      - s3inputbucket
+      - s3outputbucket
+    Properties:
+      Tags:
+        - Key: TOOL
+          Value: !Ref TOOL
+      Code:
+        S3Bucket: !Sub '${dmafinstallbucket}'
+        S3Key: athenacreation.zip
+      Description: this lambda function create tables anf view from static files
+      Environment:
+        Variables:
+          outputbucket: !Ref s3outputbucket
+          sctinputbucket: !Ref sctinputbucket
+          athenadb: !Ref athenadb
+      FunctionName: !Sub "athenacreation-${AWS::StackName}"
+      Handler: lambda_function.lambda_handler
+      MemorySize: 512
+      Role: !GetAtt 
+        - LambdaExecutionRole
+        - Arn
+      Runtime: python3.7
+      Timeout: 900
+  CustomResource:
+      Type: Custom::lambdaResource
+      Properties:
+        Tags:
+          - Key: TOOL
+            Value: !Ref TOOL
+        ServiceToken: !GetAtt athenacreationfn.Arn
+
+# EC2 cloudwatch alarms
+#------------------------------------------------------------------------------
+  EC2alarmsns:
+    Condition: isAutomated
+    Type: AWS::SNS::Topic
+    Properties:
+      Subscription:
+        - Endpoint: !Ref EC2alarmsnssubscriptionemail
+          Protocol: "email"
+      TopicName: !Ref EC2alarmsnsTopicName
+
+  #------------------------------------------------------------------------------
+  CPUAlarmWARNING:
+    Condition: isAutomated
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+
+      AlarmDescription: !Sub "DMAF EC2 Instance - High CPU Usage 90%"
+      AlarmActions:
+      - !Ref EC2alarmsns
+      OKActions:
+      - !Ref EC2alarmsns
+      MetricName: CPUUtilization
+      Namespace: AWS/EC2
+      Statistic: Average
+      Period: '900'
+      EvaluationPeriods: '1'
+      Threshold: '90'
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      Dimensions:
+      - Name: AutoScalingGroupName
+        Value: !Ref MyServerGroup
+#------------------------------------------------------------------------------
+  CPUAlarmCRITICAL:
+    Condition: isAutomated
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+
+      AlarmDescription: !Sub "DMAF EC2 Instance - High CPU Usage 95%"
+      AlarmActions:
+      - !Ref EC2alarmsns
+      OKActions:
+      - !Ref EC2alarmsns
+      MetricName: CPUUtilization
+      Namespace: AWS/EC2
+      Statistic: Average
+      Period: '900'
+      EvaluationPeriods: '2'
+      Threshold: '95'
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      Dimensions:
+      - Name: AutoScalingGroupName
+        Value: !Ref MyServerGroup
+#------------------------------------------------------------------------------
+  MemoryAlarmWARNING:
+    Condition: isAutomated
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+
+      AlarmDescription: !Sub "DMAF EC2 Instance - High Memory Usage 90%"
+      AlarmActions:
+      - !Ref EC2alarmsns
+      OKActions:
+      - !Ref EC2alarmsns
+      MetricName: "mem_used_percent"
+      Namespace: CWAgent
+      Statistic: Average
+      Period: '900'
+      EvaluationPeriods: '1'
+      Threshold: '90'
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      Dimensions:
+      - Name: AutoScalingGroupName
+        Value: !Ref MyServerGroup
+#------------------------------------------------------------------------------
+  MemoryAlarmCRITICAL:
+    Condition: isAutomated
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+
+      AlarmDescription: !Sub "DMAF EC2 Instance - High Memory Usage 95%"
+      AlarmActions:
+      - !Ref EC2alarmsns
+      OKActions:
+      - !Ref EC2alarmsns
+      MetricName: "mem_used_percent"
+      Namespace: CWAgent
+      Statistic: Average
+      Period: '900'
+      EvaluationPeriods: '2'
+      Threshold: '95'
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      Dimensions:
+      - Name: AutoScalingGroupName
+        Value: !Ref MyServerGroup
+#----------------------------Second Stack--------------------------------------
+  QuickSightFEAutomatedStack:
+    Condition: isAutomated
+    Type: AWS::CloudFormation::Stack
+    DependsOn:
+      - athenacreationfn
+      - ISProfile
+      - CustomResource
+      - MemoryAlarmCRITICAL
+      - CPUAlarmCRITICAL
+      - CPUAlarmWARNING
+      - asyncmodifycsvfn
+    Properties:
+      TemplateURL: !Sub "https://s3.amazonaws.com/${dmafinstallbucket}/dmaf-fe.yaml"      
+      Parameters:
+        QSPrincipalType:
+          !Ref QSPrincipalType
+        QSPrincipalName:
+          !Ref QSPrincipalName
+        QSPrincipalRegion:
+          !Ref QSPrincipalRegion
+        AthenaDBName:
+          !Ref athenadatabase
+        Name:
+          !Ref TOOL
+        EnvironmentName:
+          !Ref EnvironmentName
+        ProjectTagKey:
+          !Ref ProjectTagKey
+        ProjectTagValue:
+          !Ref ProjectTagValue
+        AwsDataCatalogName:
+          !Ref AwsDataCatalogName
+        AthenaWorkGroup:
+          !Ref AthenaWorkGroup
+        QSDataSetImportModeVWDatamart:
+          !Ref QSDataSetImportModeVWDatamart
+        QSDataSetImportModeVWUrldocumentation:
+          !Ref QSDataSetImportModeVWUrldocumentation
+        QSTemplateName:
+          !Ref QSTemplateName
+        QSDashboardName:
+          !Ref QSDashboardName
+        QSSourceTemplateArn:
+          !Ref QSSourceTemplateArn
+
+
+  QuickSightFEManualStack:
+    Condition: isManual
+    Type: AWS::CloudFormation::Stack
+    DependsOn:
+      - athenacreationfn
+      - CustomResource
+      - asyncmodifycsvfn
+      - csvqueue
+      - csvSQSPolicy
+      - csvqueuetolambda
+      - timecalculationfn
+      - snspermission
+      - sctsnspermission
+      - sqspollfn
+    Properties:
+      TemplateURL: !Sub "https://s3.amazonaws.com/${dmafinstallbucket}/dmaf-fe.yaml"      
+      Parameters:
+        QSPrincipalType:
+          !Ref QSPrincipalType
+        QSPrincipalName:
+          !Ref QSPrincipalName
+        QSPrincipalRegion:
+          !Ref QSPrincipalRegion
+        AthenaDBName:
+          !Ref athenadatabase
+        Name:
+          !Ref TOOL
+        EnvironmentName:
+          !Ref EnvironmentName
+        ProjectTagKey:
+          !Ref ProjectTagKey
+        ProjectTagValue:
+          !Ref ProjectTagValue
+        AwsDataCatalogName:
+          !Ref AwsDataCatalogName
+        AthenaWorkGroup:
+          !Ref AthenaWorkGroup
+        QSDataSetImportModeVWDatamart:
+          !Ref QSDataSetImportModeVWDatamart
+        QSDataSetImportModeVWUrldocumentation:
+          !Ref QSDataSetImportModeVWUrldocumentation
+        QSTemplateName:
+          !Ref QSTemplateName
+        QSDashboardName:
+          !Ref QSDashboardName
+        QSSourceTemplateArn:
+          !Ref QSSourceTemplateArn          
