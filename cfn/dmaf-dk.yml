@@ -17,6 +17,20 @@ Parameters:
   outputbucket:
     Type: String
     Default: outputtest-bucket-name
+  sqsencryptionkey:
+    Type: String
+    Default: alias/aws/sqs
+  snsencryptionkey:
+    Type: String
+    Default: alias/aws/sns
+  s3bucketKMSKey:
+    Type: String
+  s3bucketVersioning:
+    Type: String
+    Default: Suspended
+    AllowedValues:
+      - Enabled
+      - Suspended
   dmafinstallbucket:
     Description: >-
       This is the bucket where you stored lambda function zip files and jar
@@ -25,7 +39,8 @@ Parameters:
     Default: lambdatest-bucket-name
   athenadatabase:
     Description: >-
-      Athena Database Name
+      This is the bucket where you stored lambda function zip files and jar
+      files
     Type: String
     Default: athenadb
   ImageId:
@@ -53,16 +68,16 @@ Parameters:
     Type: String
     Default: 1
   PSubnet1:
-    Description: Enter your first subnet id. *This is a required field.
+    Description: Enter your first subnet id
     Type: 'AWS::EC2::Subnet::Id'
   PSubnet2:
-    Description: Enter your second subnet id. *This is a required field.
+    Description: Enter your second subnet id
     Type: 'AWS::EC2::Subnet::Id'
   SecurityGroups:
-    Description: The security group. *This is a required field.
+    Description: The security group
     Type: 'List<AWS::EC2::SecurityGroup::Id>'
   KeyName:
-    Description: Key Pair name. *This is a required field.
+    Description: Key Pair name
     Type: 'AWS::EC2::KeyPair::KeyName'
   EC2alarmsnsTopicName:
     Type: String
@@ -91,6 +106,10 @@ Metadata:
           - outputbucket
           - athenadatabase
           - Deploymenttype
+          - sqsencryptionkey
+          - snsencryptionkey
+          - s3bucketKMSKey
+          - s3bucketVersioning
       - 
         Label: 
           default: "Parameters for Automated Deployment Type"
@@ -106,7 +125,15 @@ Metadata:
           - EC2alarmsnsTopicName
           - EC2alarmsnssubscriptionemail
     ParameterLabels: 
-      VPC: 
+      sqsencryptionkey: 
+        default: "AWS KMS key ID to store messages in encrypted form in Amazon SNS topics"
+      snsencryptionkey: 
+        default: "AWS KMS key ID to store messages in encrypted form in Amazon SQS Queue"
+      s3bucketKMSKey:
+        default: KMS key ARN for S3 Bucket
+      s3bucketVersioning:
+        default: "Enable Versioning for S3 bucket"
+      VPC:
         default: "Which VPC should this be deployed to?"
       dmafinstallbucket:
         default: "DMAF Source Code Bucket"
@@ -253,6 +280,15 @@ Resources:
                   - secretsmanager:DescribeSecret
                   - secretsmanager:ListSecrets
                 Resource: "*"
+              - Effect: Allow
+                Action:
+                  - kms:Encrypt
+                  - kms:Decrypt
+                  - kms:ReEncrypt*
+                  - kms:GenerateDataKey*
+                  - kms:DescribeKey
+                Resource: 
+                  - !Ref s3bucketKMSKey
   ISProfile:
     Condition: isAutomated
     Type: 'AWS::IAM::InstanceProfile'
@@ -270,6 +306,7 @@ Resources:
       QueueName: !Sub "csvfilequeue-${AWS::StackName}"
       ReceiveMessageWaitTimeSeconds: 2
       VisibilityTimeout: 900
+      KmsMasterKeyId: !Ref sqsencryptionkey
   csvSQSPolicy:
     Type: 'AWS::SQS::QueuePolicy'
     Properties:
@@ -302,6 +339,7 @@ Resources:
   snstopic:
     Type: 'AWS::SNS::Topic'
     Properties:
+      KmsMasterKeyId: !Ref snsencryptionkey
       Tags:
         - Key: TOOL
           Value: !Ref TOOL
@@ -336,10 +374,18 @@ Resources:
   s3inputbucket:
     Type: 'AWS::S3::Bucket'
     Properties:
+      VersioningConfiguration:
+        Status: !Ref s3bucketVersioning
       Tags:
         - Key: TOOL
           Value: !Ref TOOL
       BucketName: !Sub '${sctinputbucket}'
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: 'aws:kms'
+              KMSMasterKeyID: !Ref s3bucketKMSKey
+            BucketKeyEnabled: true
       NotificationConfiguration:
         TopicConfigurations:
           - Event: 's3:ObjectCreated:*'
@@ -352,6 +398,14 @@ Resources:
   s3outputbucket:
     Type: 'AWS::S3::Bucket'
     Properties:
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: 'aws:kms'
+              KMSMasterKeyID: !Ref s3bucketKMSKey
+            BucketKeyEnabled: true
+      VersioningConfiguration:
+        Status: !Ref s3bucketVersioning
       Tags:
         - Key: TOOL
           Value: !Ref TOOL
@@ -408,6 +462,15 @@ Resources:
           PolicyDocument:
             Version: 2012-10-17
             Statement:
+              - Effect: Allow
+                Action:
+                  - kms:Encrypt
+                  - kms:Decrypt
+                  - kms:ReEncrypt*
+                  - kms:GenerateDataKey*
+                  - kms:DescribeKey
+                Resource: 
+                  - !Ref s3bucketKMSKey
               - Effect: Allow
                 Action:
                   - 'logs:CreateLogGroup'
