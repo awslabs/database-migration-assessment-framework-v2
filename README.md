@@ -2,10 +2,29 @@
 
 To create the package run the below command
 
+## Linux/Unix based machine 
+
 ```
 ./package.sh
 ```
-output:
+
+## Windows based machine
+
+### Windows 10 only using batch file 
+
+```
+.\package.bat
+```
+
+or
+
+### Windows with Powershell configured
+
+```
+.\package.ps1
+```
+
+Sample output for Linux based execution:
 ```
 $ ./package.sh
 asyncmodifycsvfiles
